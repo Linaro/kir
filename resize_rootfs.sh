@@ -5,7 +5,7 @@
 # ./resize_rootfs.sh <rootfs> <modules>
 #
 # Dependencies on Debian sid or Ubuntu 18.04:
-# apt install xz-utils
+# apt install xz-utils img2simg
 
 LXC_ROOTFS_FILE=${1}
 OVERLAY_FILE=${2:-/lava-lxc/overlays/target/overlay.tar.gz}
@@ -55,7 +55,8 @@ echo ${mount_point_dir}
 new_file_name="$(ls ${LXC_ROOTFS_FILE}| awk -F'.' '{print $1}').new.rootfs"
 new_size=$(( $overlay_size + $rootfs_size + $EXTRA_SIZE ))
 new_size=$(( $new_size / 1024 ))
-dd if=/dev/zero of=${new_file_name} bs=1M count=${new_size}
+
+dd if=/dev/zero of=${new_file_name} bs=1M count=60 seek=${new_size}
 mkfs.ext4 ${new_file_name}
 mount -o loop ${new_file_name} ${mount_point_dir}
 unpack_file ${LXC_ROOTFS_FILE} ${mount_point_dir}
@@ -65,6 +66,11 @@ tar -cJf ../${new_file_name}.tar.xz .
 cd ..
 umount ${mount_point_dir}
 rmdir ${mount_point_dir}
+echo "execute this command: img2simg ${new_file_name}.ext4 ${new_file_name}.img"
+img2simg ${new_file_name} ${new_file_name}.img
+echo "execute this command: xz -c ${new_file_name} > ${new_file_name}.ext4.xz"
 xz -c ${new_file_name} > ${new_file_name}.ext4.xz
+echo "execute this command: xz -c ${new_file_name}.img > ${new_file_name}.img.xz"
+xz -c ${new_file_name}.img > ${new_file_name}.img.xz
 
 echo ${new_file_name}
