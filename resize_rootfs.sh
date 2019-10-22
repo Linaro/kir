@@ -9,7 +9,7 @@
 
 LXC_ROOTFS_FILE=${1}
 OVERLAY_FILE=${2:-/lava-lxc/overlays/target/overlay.tar.gz}
-EXTRA_SIZE=${3:-512000}
+EXTRA_SIZE=${EXTRA_SIZE:-512000}
 
 find_extracted_size() {
 	local local_file=${1}
