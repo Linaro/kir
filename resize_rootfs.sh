@@ -33,21 +33,16 @@ mount_point_dir=$(mktemp -p $(pwd) -d -t kcv_$(date +%y%m%d_%H%M%S)-XXXXXXXXXX)
 
 echo ${mount_point_dir}
 
-new_file_name="$(find . -type f -name "${LXC_ROOTFS_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g').new.rootfs"
-new_size=$(( "${overlay_size}" + "${rootfs_size}" + "${EXTRA_SIZE}" ))
-new_size=$(( "${new_size}" / 1024 ))
-
-
+new_file_name=$(get_new_file_name "${LXC_ROOTFS_FILE}" ".new.rootfs")
+new_size=$(get_new_size "${overlay_size}" "${rootfs_size}" "${EXTRA_SIZE}")
 if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
-	dd if=/dev/zero of="${new_file_name}" bs=1M count=60 seek="${new_size}"
-	mkfs.ext4 "${new_file_name}"
+	get_and_create_a_ddfile "${new_file_name}" "${new_size}"
 else
 	new_file_name=$(basename "${LXC_ROOTFS_FILE}" .gz)
-	gunzip -k "${LXC_ROOTFS_FILE}"
-	fsck_code=$(e2fsck -y -f "${new_file_name}")
-	resize2fs "${new_file_name}" "${new_size}"K
+	get_and_create_new_rootfs "${new_file_name}" "${new_file_name}" "${new_size}"
 fi
-mount -o loop "${new_file_name}" "${mount_point_dir}"
+
+loopback_mount "${new_file_name}" "${mount_point_dir}"
 if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 	unpack_tar_file "${LXC_ROOTFS_FILE}" "${mount_point_dir}"
 fi
@@ -59,18 +54,14 @@ if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 	tar -cJf ../"${new_file_name}".tar.xz .
 	cd ..
 fi
-umount "${mount_point_dir}"
-rmdir "${mount_point_dir}"
+
+loopback_unmount "${mount_point_dir}"
 
 if [[ ${SPARSE_NEEDED} == "yes" ]]; then
 	img_file="$(basename "${new_file_name}" .ext4).img"
-	echo "execute this command: img2simg ${new_file_name} ${img_file}"
-	img2simg "${new_file_name}" "${img_file}"
-	echo "execute this command: xz -c ${img_file} > ${img_file}.xz"
-	xz -c "${img_file}" > "${img_file}".xz
+	create_a_sparse_xz_img "${img_file}" "${new_file_name}"
 else
-	echo "execute this command: xz -c ${new_file_name} > $(basename ${new_file_name} .ext4).ext4.xz"
-	xz -c "${new_file_name}" > "$(basename "${new_file_name}" .ext4).ext4.xz"
+	create_a_ext4_xz_img "${new_file_name}"
 fi
 
 echo ${new_file_name}
