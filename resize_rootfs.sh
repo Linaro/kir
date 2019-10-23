@@ -5,7 +5,7 @@
 # ./resize_rootfs.sh <rootfs> <modules>
 #
 # Dependencies on Debian sid or Ubuntu 18.04:
-# apt install xz-utils img2simg
+# apt install xz-utils img2simg curl
 
 LXC_ROOTFS_FILE=${1}
 OVERLAY_FILE=${2:-/lava-lxc/overlays/target/overlay.tar.gz}
@@ -37,12 +37,27 @@ unpack_file() {
 	tar -xvf ${local_file} -C ${local_mount_point}
 }
 
+curl_me() {
+	local local_file=${1}
+	if [[ ! -f $(basename "${local_file}") ]]; then
+		curl -sSL -o "$(basename "${local_file}")" "${local_file}"
+		retcode=$?
+		if [[ ${retcode} -ne 0 ]]; then
+			exit ${retconde}
+		fi
+	fi
+	echo $(basename "${local_file}")
+}
+
 if [[ -d /lava-lxc ]]; then
 	cd /lava-lxc
 else
 	mkdir -p $(pwd)/lava-lxc
 	cd $(pwd)/lava-lxc
 fi
+
+OVERLAY_FILE=$(curl_me "${OVERLAY_FILE}")
+LXC_ROOTFS_FILE=$(curl_me "${LXC_ROOTFS_FILE}")
 
 overlay_size=$(find_extracted_size ${OVERLAY_FILE})
 rootfs_size=$(find_extracted_size ${LXC_ROOTFS_FILE})
