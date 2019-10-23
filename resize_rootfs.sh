@@ -14,17 +14,21 @@ SPARSE_NEEDED=${3:-no}
 
 find_extracted_size() {
 	local local_file=${1}
+	local local_file_type=${2}
 	local local_size=
-	if [[ ${local_file##*.} =~ tar ]]; then
+	if [[ ${local_file_type} = *"POSIX tar archive"* ]]; then
 		local_size=$(ls -l "${local_file}" | awk '{print $5}')
 		local_size=$(( "${local_size}" / 1024 ))
-	elif [[ ${local_file##*.} =~ gz ]]; then
+	elif [[ ${local_file_type} = *"gzip compressed data"* ]]; then
 		local_size=$(gzip -l "${local_file}" | tail -1 | awk '{print $2}')
 		local_size=$(( "${local_size}" / 1024 ))
-	elif [[ ${local_file##*.} =~ xz ]]; then
+	elif [[ ${local_file_type} = *"XZ compressed data"* ]]; then
 		local_size=$(xz -l "${local_file}" | tail -1 | awk '{print $5}'|sed 's/,//g' | awk -F'.' '{print $1}')
 		local_size=$(( "${local_size}"+1 ))
 		local_size=$(( "${local_size}" * 1024 ))
+	elif [[ ${local_file_type} = *"ext4 filesystem data"* ]]; then
+		local_size=$(ls -l "${local_file}" | awk '{print $5}')
+		local_size=$(( "${local_size}" / 1024 ))
 	else
 		echo "ABORT: Format not supported: ${local_size}"
 		exit 1
@@ -60,8 +64,10 @@ fi
 OVERLAY_FILE=$(curl_me "${OVERLAY_FILE}")
 LXC_ROOTFS_FILE=$(curl_me "${LXC_ROOTFS_FILE}")
 
-overlay_size=$(find_extracted_size "${OVERLAY_FILE}")
-rootfs_size=$(find_extracted_size "${LXC_ROOTFS_FILE}")
+overlay_file_type=$(file "${OVERLAY_FILE}")
+rootfs_file_type=$(file "${LXC_ROOTFS_FILE}")
+overlay_size=$(find_extracted_size "${OVERLAY_FILE}" "${overlay_file_type}")
+rootfs_size=$(find_extracted_size "${LXC_ROOTFS_FILE}" "${rootfs_file_type}")
 
 mount_point_dir=$(mktemp -p $(pwd) -d -t kcv_$(date +%y%m%d_%H%M%S)-XXXXXXXXXX)
 
@@ -78,6 +84,8 @@ if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 else
 	new_file_name=$(basename "${LXC_ROOTFS_FILE}" .gz)
 	gunzip -k "${LXC_ROOTFS_FILE}"
+	fsck_code=$(e2fsck -y -f "${new_file_name}")
+	resize2fs "${new_file_name}" "${new_size}"K
 fi
 mount -o loop "${new_file_name}" "${mount_point_dir}"
 if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
