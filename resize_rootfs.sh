@@ -60,27 +60,40 @@ fi
 OVERLAY_FILE=$(curl_me "${OVERLAY_FILE}")
 LXC_ROOTFS_FILE=$(curl_me "${LXC_ROOTFS_FILE}")
 
-overlay_size=$(find_extracted_size ${OVERLAY_FILE})
-rootfs_size=$(find_extracted_size ${LXC_ROOTFS_FILE})
+overlay_size=$(find_extracted_size "${OVERLAY_FILE}")
+rootfs_size=$(find_extracted_size "${LXC_ROOTFS_FILE}")
 
 mount_point_dir=$(mktemp -p $(pwd) -d -t kcv_$(date +%y%m%d_%H%M%S)-XXXXXXXXXX)
 
 echo ${mount_point_dir}
 
-new_file_name="$(ls ${LXC_ROOTFS_FILE}| awk -F'.' '{print $1}').new.rootfs"
-new_size=$(( $overlay_size + $rootfs_size + $EXTRA_SIZE ))
-new_size=$(( $new_size / 1024 ))
+new_file_name="$(find . -type f -name "${LXC_ROOTFS_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g').new.rootfs"
+new_size=$(( "${overlay_size}" + "${rootfs_size}" + "${EXTRA_SIZE}" ))
+new_size=$(( "${new_size}" / 1024 ))
 
-dd if=/dev/zero of=${new_file_name} bs=1M count=60 seek=${new_size}
-mkfs.ext4 ${new_file_name}
-mount -o loop ${new_file_name} ${mount_point_dir}
-unpack_tar_file ${LXC_ROOTFS_FILE} ${mount_point_dir}
-unpack_tar_file ${OVERLAY_FILE} ${mount_point_dir}
-cd ${mount_point_dir}
-tar -cJf ../${new_file_name}.tar.xz .
-cd ..
-umount ${mount_point_dir}
-rmdir ${mount_point_dir}
+
+if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
+	dd if=/dev/zero of="${new_file_name}" bs=1M count=60 seek="${new_size}"
+	mkfs.ext4 "${new_file_name}"
+else
+	new_file_name=$(basename "${LXC_ROOTFS_FILE}" .gz)
+	gunzip -k "${LXC_ROOTFS_FILE}"
+fi
+mount -o loop "${new_file_name}" "${mount_point_dir}"
+if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
+	unpack_tar_file "${LXC_ROOTFS_FILE}" "${mount_point_dir}"
+fi
+
+unpack_tar_file "${OVERLAY_FILE}" "${mount_point_dir}"
+
+if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
+	cd "${mount_point_dir}"
+	tar -cJf ../"${new_file_name}".tar.xz .
+	cd ..
+fi
+umount "${mount_point_dir}"
+rmdir "${mount_point_dir}"
+
 if [[ ${SPARSE_NEEDED} == "yes" ]]; then
 	img_file="$(basename "${new_file_name}" .ext4).img"
 	echo "execute this command: img2simg ${new_file_name} ${img_file}"
