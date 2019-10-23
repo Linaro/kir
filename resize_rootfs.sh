@@ -14,20 +14,19 @@ EXTRA_SIZE=${EXTRA_SIZE:-512000}
 find_extracted_size() {
 	local local_file=${1}
 	local local_size=
-	if [[ ${local_file##*.} =~ .gz ]]; then
-		local_size=$(gzip -l ${local_file} | tail -1 | awk '{print $2}')
-		local_size=$(( $local_size / 1024 ))
-	elif [[ ${local_file##*.} =~ .tar ]]; then
-		local_size=$(ls -l ${local_file} | awk '{print $5}')
-		local_size=$(( $local_size / 1024 ))
-	#elif [[ ${local_file##*.} =~ .xz ]]; then
+	if [[ ${local_file##*.} =~ tar ]]; then
+		local_size=$(ls -l "${local_file}" | awk '{print $5}')
+		local_size=$(( "${local_size}" / 1024 ))
+	elif [[ ${local_file##*.} =~ gz ]]; then
+		local_size=$(gzip -l "${local_file}" | tail -1 | awk '{print $2}')
+		local_size=$(( "${local_size}" / 1024 ))
+	elif [[ ${local_file##*.} =~ xz ]]; then
+		local_size=$(xz -l "${local_file}" | tail -1 | awk '{print $5}'|sed 's/,//g' | awk -F'.' '{print $1}')
+		local_size=$(( "${local_size}"+1 ))
+		local_size=$(( "${local_size}" * 1024 ))
 	else
-		local_size=$(xz -l ${local_file} | tail -1 | awk '{print $5}'|sed 's/,//g' | awk -F'.' '{print $1}')
-		local_size=$(( ${local_size}+1 ))
-		local_size=$(( ${local_size} * 1024 ))
-	#else
-		#echo "ABORT: Format not supported."
-		#exit 0
+		echo "ABORT: Format not supported: ${local_size}"
+		exit 1
 	fi
 	echo ${local_size}
 }
