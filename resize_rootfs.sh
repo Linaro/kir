@@ -32,7 +32,7 @@ find_extracted_size() {
 	echo ${local_size}
 }
 
-unpack_file() {
+unpack_tar_file() {
 	local local_file=${1}
 	local local_mount_point=${2}
 	tar -xvf ${local_file} -C ${local_mount_point}
@@ -74,8 +74,8 @@ new_size=$(( $new_size / 1024 ))
 dd if=/dev/zero of=${new_file_name} bs=1M count=60 seek=${new_size}
 mkfs.ext4 ${new_file_name}
 mount -o loop ${new_file_name} ${mount_point_dir}
-unpack_file ${LXC_ROOTFS_FILE} ${mount_point_dir}
-unpack_file ${OVERLAY_FILE} ${mount_point_dir}
+unpack_tar_file ${LXC_ROOTFS_FILE} ${mount_point_dir}
+unpack_tar_file ${OVERLAY_FILE} ${mount_point_dir}
 cd ${mount_point_dir}
 tar -cJf ../${new_file_name}.tar.xz .
 cd ..
