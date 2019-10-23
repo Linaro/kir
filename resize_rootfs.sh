@@ -10,6 +10,7 @@
 LXC_ROOTFS_FILE=${1}
 OVERLAY_FILE=${2:-/lava-lxc/overlays/target/overlay.tar.gz}
 EXTRA_SIZE=${EXTRA_SIZE:-512000}
+SPARSE_NEEDED=${3:-no}
 
 find_extracted_size() {
 	local local_file=${1}
@@ -80,11 +81,15 @@ tar -cJf ../${new_file_name}.tar.xz .
 cd ..
 umount ${mount_point_dir}
 rmdir ${mount_point_dir}
-echo "execute this command: img2simg ${new_file_name}.ext4 ${new_file_name}.img"
-img2simg ${new_file_name} ${new_file_name}.img
-echo "execute this command: xz -c ${new_file_name} > ${new_file_name}.ext4.xz"
-xz -c ${new_file_name} > ${new_file_name}.ext4.xz
-echo "execute this command: xz -c ${new_file_name}.img > ${new_file_name}.img.xz"
-xz -c ${new_file_name}.img > ${new_file_name}.img.xz
+if [[ ${SPARSE_NEEDED} == "yes" ]]; then
+	img_file="$(basename "${new_file_name}" .ext4).img"
+	echo "execute this command: img2simg ${new_file_name} ${img_file}"
+	img2simg "${new_file_name}" "${img_file}"
+	echo "execute this command: xz -c ${img_file} > ${img_file}.xz"
+	xz -c "${img_file}" > "${img_file}".xz
+else
+	echo "execute this command: xz -c ${new_file_name} > $(basename ${new_file_name} .ext4).ext4.xz"
+	xz -c "${new_file_name}" > "$(basename "${new_file_name}" .ext4).ext4.xz"
+fi
 
 echo ${new_file_name}
