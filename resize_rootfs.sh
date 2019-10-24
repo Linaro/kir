@@ -2,11 +2,6 @@
 
 #set -xe
 
-# ./resize_rootfs.sh <rootfs> <modules>
-#
-# Dependencies on Debian sid or Ubuntu 18.04:
-# apt install xz-utils img2simg curl
-
 LXC_ROOTFS_FILE=${1}
 OVERLAY_FILE=${2:-/lava-lxc/overlays/target/overlay.tar.gz}
 EXTRA_SIZE=${EXTRA_SIZE:-64000}

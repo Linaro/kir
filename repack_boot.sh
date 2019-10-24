@@ -2,11 +2,6 @@
 
 #set -xe
 
-# ./repack_boot.sh <zImage> <dtb>
-#
-# Dependencies on Debian sid or Ubuntu 18.04:
-# apt install xz-utils img2simg mkbootimg curl
-
 . $(dirname $0)/helper.sh
 
 if [[ -d /lava-lxc ]]; then
