@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#set -xe
+
 # ./repack_boot.sh <zImage> <dtb>
 #
 # Dependencies on Debian sid or Ubuntu 18.04:
