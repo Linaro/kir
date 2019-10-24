@@ -57,7 +57,7 @@ fi
 
 loopback_unmount "${mount_point_dir}"
 
-if [[ ${SPARSE_NEEDED} == "yes" ]]; then
+if [[ "${SPARSE_NEEDED}" = *"yes"* ]]; then
 	img_file="$(basename "${new_file_name}" .ext4).img"
 	create_a_sparse_xz_img "${img_file}" "${new_file_name}"
 else
