@@ -41,6 +41,11 @@ curl_me() {
 	echo $(basename "${local_file}")
 }
 
+get_mountpoint_dir() {
+	local local_mount_point_dir="$(mktemp -p "$(pwd)" -d -t kcv_"$(date +%y%m%d_%H%M%S)"-XXXXXXXXXX)"
+	echo "${local_mount_point_dir}"
+}
+
 get_new_file_name() {
 	local local_rootfs_file=${1}
 	local local_filename_prefix=${2}

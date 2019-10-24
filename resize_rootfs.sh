@@ -29,7 +29,7 @@ rootfs_file_type=$(file "${LXC_ROOTFS_FILE}")
 overlay_size=$(find_extracted_size "${OVERLAY_FILE}" "${overlay_file_type}")
 rootfs_size=$(find_extracted_size "${LXC_ROOTFS_FILE}" "${rootfs_file_type}")
 
-mount_point_dir=$(mktemp -p $(pwd) -d -t kcv_$(date +%y%m%d_%H%M%S)-XXXXXXXXXX)
+mount_point_dir=$(get_mountpoint_dir)
 
 echo ${mount_point_dir}
 
