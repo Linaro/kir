@@ -6,7 +6,7 @@
 # apt install mkbootimg curl
 
 LXC_KERNEL_FILE=${1}
-LXC_DTB_FILE=${1}
+LXC_DTB_FILE=${2}
 
 . $(dirname $0)/helper.sh
 
