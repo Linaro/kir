@@ -72,8 +72,6 @@ if [[ ${dtb_file_type} =~ *"Device Tree Blob"* ]]; then
 fi
 
 case ${TARGET} in
-	am57xx-evm)
-	;;
 	dragonboard-410c)
 	if [[ ${kernel_file_type} =~ *"gzip compressed data"* ]]; then
 		echo "Need to pass in a zImage file"
@@ -86,7 +84,7 @@ case ${TARGET} in
 	new_file_name="$(find . -type f -name "${LXC_KERNEL_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g')"
 	mkbootimg --kernel zImage+dtb --ramdisk initrd.img --pagesize 2048 --base 0x80000000 --cmdline "root=/dev/mmcblk0p10 rw rootwait console=ttyMSM0,115200n8" --output boot-"${new_file_name}".img
 	;;
-	hikey)
+	am57xx-evm|hikey)
 	modules_file_type=$(file "${LXC_MODULES_FILE}")
 	rootfs_file_type=$(file "${LXC_ROOTFS_FILE}")
 	modules_size=$(find_extracted_size "${LXC_MODULES_FILE}" "${modules_file_type}")
@@ -114,9 +112,18 @@ case ${TARGET} in
 	cp "${LXC_DTB_FILE}" "${mount_point_dir}"/boot/
 	cp "${LXC_KERNEL_FILE}" "${mount_point_dir}"/boot/
 	cd "${mount_point_dir}"/boot
-	cp hi6220-hikey.dtb hi6220-hikey.dtb.bak
-	ln -sf "${LXC_DTB_FILE}" hi6220-hikey.dtb
-	ln -sf "${LXC_KERNEL_FILE}" Image
+
+	if [[ ${TARGET} = *"hikey"* ]]; then
+		dtb_file="hi6220-hikey.dtb"
+		kernel_image="Image"
+	else
+		dtb_file="am57xx-beagle-x15.dtb"
+		kernel_image="zImage"
+	fi
+
+	cp "${dtb_file}" "${dtb_file}".bak
+	ln -sf "${LXC_DTB_FILE}" "${dtb_file}"
+	ln -sf "${LXC_KERNEL_FILE}" "${kernel_image}"
 	cd -
 
 	loopback_unmount "${mount_point_dir}"
