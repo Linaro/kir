@@ -31,6 +31,11 @@ unpack_tar_file() {
 
 curl_me() {
 	local local_file=${1}
+	if [[ -z ${local_file} ]]; then
+		echo ""
+		return
+	fi
+
 	if [[ ! -f $(basename "${local_file}") ]]; then
 		curl -sSL -o "$(basename "${local_file}")" "${local_file}"
 		retcode=$?
