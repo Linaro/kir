@@ -71,4 +71,22 @@ echo
 echo TARGET: ${machine}
 echo ./repack_boot.sh -t ${machine} -d "${dtb}" -k "${kernel}"
 echo ./resize_rootfs.sh -s -f ${rootfs} -o ${modules}
+
+# juno test
+machine=juno
+BUILDNR="${ROOTFS_BUILDNR}"
+url="${base}"/"${oe_version}"/"${machine}"/lkft/"${linux}"/"${BUILDNR}"
+curl -sL "${url}" -o index.txt
+rootfs="${url}/$(get_artifact "rpb-console-image-lkft-" ".tar.xz")"
+mv index.txt "${machine}"-rootfs.index.txt
+BUILDNR="latest"
+url="${base}"/"${oe_version}"/"${machine}"/lkft/"${linux}"/"${BUILDNR}"
+curl -sL "${url}" -qo index.txt
+modules="${url}/$(get_artifact "modules-" ".tgz")"
+mv index.txt "${machine}".index.txt
+
+echo
+echo TARGET: ${machine}
+echo EXTRA_SIZE=128000 ./resize_rootfs.sh -f ${rootfs} -o ${modules}
+
 rm *.index.txt
