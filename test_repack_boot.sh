@@ -20,14 +20,14 @@ BUILDNR=${ROOTFS_BUILDNR}
 url="${base}"/"${oe_version}"/"${machine}"/lkft/"${linux}"/"${BUILDNR}"
 curl -sL "${url}" -o index.txt
 rootfs="${url}/$(get_artifact "rpb-console-image-lkft-" ".ext4.gz")"
-mv index.txt hikey-rootfs.index.txt
+mv index.txt "${machine}"-rootfs.index.txt
 BUILDNR=latest
 url="${base}"/"${oe_version}"/"${machine}"/lkft/"${linux}"/"${BUILDNR}"
 curl -sL "${url}" -o index.txt
 modules="${url}/$(get_artifact "modules-" ".tgz")"
 dtb="${url}/$(get_artifact "Image-" ".dtb")"
 kernel="${url}/$(get_artifact "Image-" ".bin")"
-mv index.txt hikey-artifacts.index.txt
+mv index.txt "${machine}"-artifacts.index.txt
 
 echo
 echo TARGET: ${machine}
@@ -39,17 +39,36 @@ BUILDNR="${ROOTFS_BUILDNR}"
 url="${base}"/"${oe_version}"/"${machine}"/lkft/"${linux}"/"${BUILDNR}"
 curl -sL "${url}" -o index.txt
 rootfs="${url}/$(get_artifact "rpb-console-image-lkft-" ".ext4.gz")"
-mv index.txt x15-rootfs.index.txt
+mv index.txt "${machine}"-rootfs.index.txt
 BUILDNR="latest"
 url="${base}"/"${oe_version}"/"${machine}"/lkft/"${linux}"/"${BUILDNR}"
 curl -sL "${url}" -qo index.txt
 modules="${url}/$(get_artifact "modules-" ".tgz")"
 dtb="${url}/$(get_artifact "zImage-" ".dtb")"
 kernel="${url}/$(get_artifact "zImage-" ".bin")"
-mv index.txt x15-artifacts.index.txt
+mv index.txt "${machine}"-artifacts.index.txt
 
 echo
 echo TARGET: ${machine}
 echo ./repack_boot.sh -t ${machine} -f "${rootfs}" -d "${dtb}" -k "${kernel}" -m "${modules}"
 
+# dragonboard-410c test
+machine=dragonboard-410c
+BUILDNR="${ROOTFS_BUILDNR}"
+url="${base}"/"${oe_version}"/"${machine}"/lkft/"${linux}"/"${BUILDNR}"
+curl -sL "${url}" -o index.txt
+rootfs="${url}/$(get_artifact "rpb-console-image-lkft-" ".ext4.gz")"
+mv index.txt "${machine}"-rootfs.index.txt
+BUILDNR="latest"
+url="${base}"/"${oe_version}"/"${machine}"/lkft/"${linux}"/"${BUILDNR}"
+curl -sL "${url}" -qo index.txt
+modules="${url}/$(get_artifact "modules-" ".tgz")"
+dtb="${url}/$(get_artifact "Image.gz-" ".dtb")"
+kernel="${url}/$(get_artifact "Image.gz-" ".bin")"
+mv index.txt "${machine}".index.txt
+
+echo
+echo TARGET: ${machine}
+echo ./repack_boot.sh -t ${machine} -d "${dtb}" -k "${kernel}"
+echo ./resize_rootfs.sh -s -f ${rootfs} -o ${modules}
 rm *.index.txt
