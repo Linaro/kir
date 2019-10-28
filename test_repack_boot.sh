@@ -106,4 +106,21 @@ echo
 echo TARGET: ${machine}
 echo EXTRA_SIZE=128000 ./resize_rootfs.sh -f ${rootfs} -o ${modules}
 
+# intel-corei7-64 test
+machine=intel-corei7-64
+BUILDNR="${ROOTFS_BUILDNR}"
+url="${base}"/"${oe_version}"/"${machine}"/lkft/"${linux}"/"${BUILDNR}"
+curl -sL "${url}" -o index.txt
+rootfs="${url}/$(get_artifact "rpb-console-image-lkft-" ".tar.xz")"
+mv index.txt "${machine}"-rootfs.index.txt
+BUILDNR="latest"
+url="${base}"/"${oe_version}"/"${machine}"/lkft/"${linux}"/"${BUILDNR}"
+curl -sL "${url}" -qo index.txt
+modules="${url}/$(get_artifact "modules-" ".tgz")"
+mv index.txt "${machine}".index.txt
+
+echo
+echo TARGET: ${machine}
+echo EXTRA_SIZE=128000 ./resize_rootfs.sh -f ${rootfs} -o ${modules}
+
 rm *.index.txt
