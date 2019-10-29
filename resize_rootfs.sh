@@ -5,6 +5,7 @@
 EXTRA_SIZE=${EXTRA_SIZE:-64000}
 sparse_needed=0
 clear_modules=0
+zip_needed=0
 
 . $(dirname $0)/helper.sh
 
@@ -24,11 +25,11 @@ usage() {
 	echo -e "   -o OVERLAY_URL, specify a url to a kernel module tgz file."
 	echo -e "      Can be to a file on disk: file:///path/to/file.gz"
 	echo -e "   -s SPARSE imge or not"
-	echo -e "   -t TARGET, add machine name"
+	echo -e "   -z zip image or not"
 	echo -e "   -h, prints out this help"
 }
 
-while getopts "cd:f:hm:o:s" arg; do
+while getopts "cd:f:hm:o:sz" arg; do
 	case $arg in
 	c)
 		clear_modules=1
@@ -41,6 +42,9 @@ while getopts "cd:f:hm:o:s" arg; do
 		;;
 	s)
 		sparse_needed=1
+		;;
+	z)
+		zip_needed=1
 		;;
 	h|*)
 		usage
@@ -91,9 +95,12 @@ loopback_unmount "${mount_point_dir}"
 
 if [[ ${sparse_needed} -eq 1 ]]; then
 	img_file="$(basename "${new_file_name}" .ext4).img"
-	create_a_sparse_xz_img "${img_file}" "${new_file_name}"
-else
-	create_a_ext4_xz_img "${new_file_name}"
+	create_a_sparse_img "${img_file}" "${new_file_name}"
+	new_file_name=${img_file}
+fi
+
+if [[ ${zip_needed} -eq 1 ]]; then
+	create_a_xz_file "${new_file_name}"
 fi
 
 echo ${new_file_name}

@@ -12,6 +12,7 @@ else
 fi
 
 clear_modules=0
+zip_needed=0
 EXTRA_SIZE=${EXTRA_SIZE:-64000}
 
 usage() {
@@ -27,10 +28,11 @@ usage() {
 	echo -e "   -m MODULE_URL, specify a url to a kernel module tgz file."
 	echo -e "      Can be to a file on disk: file:///path/to/file.gz"
 	echo -e "   -t TARGET, add machine name"
+	echo -e "   -z zip image or not"
 	echo -e "   -h, prints out this help"
 }
 
-while getopts "cd:f:hk:m:t:" arg; do
+while getopts "cd:f:hk:m:t:z" arg; do
 	case $arg in
 	c)
 		clear_modules=1
@@ -49,6 +51,9 @@ while getopts "cd:f:hk:m:t:" arg; do
 		;;
 	t)
 		TARGET="$OPTARG"
+		;;
+	z)
+		zip_needed=1
 		;;
 	h|*)
 		usage
@@ -128,7 +133,7 @@ case ${TARGET} in
 
 	loopback_unmount "${mount_point_dir}"
 	img_file="$(basename "${new_file_name}" .ext4).img"
-	create_a_sparse_xz_img "${img_file}" "${new_file_name}"
+	create_a_sparse_img "${img_file}" "${new_file_name}"
 	;;
 	intel-corei7-64)
 	;;

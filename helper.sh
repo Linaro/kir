@@ -95,17 +95,15 @@ loopback_unmount() {
 	rmdir "${local_mount_point_dir}"
 }
 
-create_a_sparse_xz_img() {
+create_a_sparse_img() {
 	local local_img_file=${1}
 	local local_new_file_name=${2}
 	echo "execute this command: img2simg ${local_new_file_name} ${local_img_file}"
 	img2simg "${local_new_file_name}" "${local_img_file}"
-	echo "execute this command: xz -c ${local_img_file} > ${local_img_file}.xz"
-	xz -c "${local_img_file}" > "${local_img_file}".xz
 }
 
-create_a_ext4_xz_img() {
+create_a_xz_file() {
 	local local_new_file_name=${1}
-	echo "execute this command: xz -c ${local_new_file_name} > $(basename ${local_new_file_name} .ext4).ext4.xz"
-	xz -c "${local_new_file_name}" > "$(basename "${local_new_file_name}" .ext4).ext4.xz"
+	echo "execute this command: xz -c ${local_new_file_name} > ${local_new_file_name}.xz"
+	xz -c "${local_new_file_name}" > "$(basename "${local_new_file_name}").xz"
 }
