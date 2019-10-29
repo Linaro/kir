@@ -24,7 +24,7 @@ usage() {
 	echo -e "      Can be to a file on disk: file:///path/to/file.gz"
 	echo -e "   -o OVERLAY_URL, specify a url to a kernel module tgz file."
 	echo -e "      Can be to a file on disk: file:///path/to/file.gz"
-	echo -e "   -s SPARSE imge or not"
+	echo -e "   -s SPARSE image or not"
 	echo -e "   -z zip image or not"
 	echo -e "   -h, prints out this help"
 }
