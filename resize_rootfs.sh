@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 #set -xe
 
 EXTRA_SIZE=${EXTRA_SIZE:-64000}

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 #set -xe
 
 . $(dirname $0)/helper.sh
