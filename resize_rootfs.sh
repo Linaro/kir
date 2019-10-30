@@ -76,7 +76,6 @@ else
 	get_and_create_new_rootfs "${new_file_name}" "${new_file_name}" "${new_size}"
 fi
 
-loopback_mount "${new_file_name}" "${mount_point_dir}"
 if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 	unpack_tar_file "${LXC_ROOTFS_FILE}" "${mount_point_dir}"
 fi
@@ -92,7 +91,7 @@ if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 	cd ..
 fi
 
-loopback_unmount "${mount_point_dir}"
+virt_copy_in ${new_file_name} ${mount_point_dir}
 
 if [[ ${sparse_needed} -eq 1 ]]; then
 	img_file="$(basename "${new_file_name}" .ext4).img"

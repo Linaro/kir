@@ -105,7 +105,6 @@ case ${TARGET} in
 		get_and_create_new_rootfs "${new_file_name}" "${new_file_name}" "${new_size}"
 	fi
 
-	loopback_mount "${new_file_name}" "${mount_point_dir}"
 	if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 		unpack_tar_file "${LXC_ROOTFS_FILE}" "${mount_point_dir}"
 	fi
@@ -115,6 +114,7 @@ case ${TARGET} in
 	fi
 	unpack_tar_file "${LXC_MODULES_FILE}" "${mount_point_dir}"
 
+	mkdir -p "${mount_point_dir}"/boot
 	cp "${LXC_DTB_FILE}" "${mount_point_dir}"/boot/
 	cp "${LXC_KERNEL_FILE}" "${mount_point_dir}"/boot/
 	cd "${mount_point_dir}"/boot
@@ -127,12 +127,11 @@ case ${TARGET} in
 		kernel_image="zImage"
 	fi
 
-	cp "${dtb_file}" "${dtb_file}".bak
 	ln -sf "${LXC_DTB_FILE}" "${dtb_file}"
 	ln -sf "${LXC_KERNEL_FILE}" "${kernel_image}"
 	cd -
 
-	loopback_unmount "${mount_point_dir}"
+	virt_copy_in ${new_file_name} ${mount_point_dir}
 	img_file="$(basename "${new_file_name}" .ext4).img"
 	create_a_sparse_img "${img_file}" "${new_file_name}"
 	;;

@@ -89,10 +89,11 @@ loopback_mount() {
 	mount -o loop "${local_new_file_name}" "${local_mount_point_dir}"
 }
 
-loopback_unmount() {
-	local local_mount_point_dir=${1}
-	umount "${local_mount_point_dir}"
-	rmdir "${local_mount_point_dir}"
+virt_copy_in() {
+	local local_new_file_name=${1}
+	local local_mount_point_dir=${2}
+	virt-copy-in -a ${local_new_file_name} ${local_mount_point_dir}/* /
+	rm -rf "${local_mount_point_dir}"
 }
 
 create_a_sparse_img() {
