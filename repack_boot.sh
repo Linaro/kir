@@ -3,7 +3,7 @@
 set -e
 #set -xe
 
-. $(dirname $0)/helper.sh
+. $(dirname $0)/libhelper
 
 if [[ -d /lava-lxc ]]; then
 	cd /lava-lxc

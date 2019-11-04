@@ -8,7 +8,7 @@ sparse_needed=0
 clear_modules=0
 zip_needed=0
 
-. $(dirname $0)/helper.sh
+. $(dirname $0)/libhelper
 
 if [[ -d /lava-lxc ]]; then
 	cd /lava-lxc
