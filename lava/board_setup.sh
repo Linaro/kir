@@ -48,10 +48,6 @@ case ${MACHINE} in
 		file ${local_dtb}
 		./kir/repack_boot.sh -t "${MACHINE}" -f "${local_rootfs_ext4}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
 		;;
-	intel-corei7-64)
-		;;
-	intel-core2-32)
-		;;
 	*)
 		usage
 		exit 1
