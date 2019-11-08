@@ -4,7 +4,7 @@
 set -e
 #set -xe
 
-MACHINE=${1}
+DEVICE_TYPE=${1}
 cd /lava-lxc
 
 find . -type f -name 'modules-*'
@@ -19,22 +19,24 @@ local_rootfs_ext4=$(find . -type f -name '*rpb-console-image-lkft-*.ext4*')
 echo "PRINTOUT ROOTFS: ${local_rootfs_ext4}"
 file ${local_rootfs_ext4}
 
-case ${MACHINE} in
-	am57xx-evm)
+case ${DEVICE_TYPE} in
+	x15)
 		local_dtb=$(find . -type f -name '*Image*.dtb')
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
-		./kir/repack_boot.sh -t "${MACHINE}" -f "${local_rootfs_ext4}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
+		machine=am57xx-evm
+		./kir/repack_boot.sh -t "${machine}" -f "${local_rootfs_ext4}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
 		;;
 	dragonboard-410c)
 
 		local_dtb=$(find . -type f -name '*Image*.dtb')
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
-		./kir/repack_boot.sh -t "${MACHINE}" -d "${local_dtb}" -k "${local_kernel}"
+		machine=dragonboard-410c
+		./kir/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
 		./kir/resize_rootfs.sh -s -f "${local_rootfs_ext4}" -o "${local_modules}"
 		;;
-	hikey)
+	hi6220-hikey-r2)
 		local_ptable=$(find . -type f -name '*ptable*-8g.img')
 		echo "PRINTOUT ptable: ${local_ptable}"
 		file ${local_ptable}
@@ -46,7 +48,8 @@ case ${MACHINE} in
 		local_dtb=$(find . -type f -name '*Image*.dtb')
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
-		./kir/repack_boot.sh -t "${MACHINE}" -f "${local_rootfs_ext4}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
+		machine=hikey
+		./kir/repack_boot.sh -t "${machine}" -f "${local_rootfs_ext4}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
 		;;
 	*)
 		usage
@@ -56,7 +59,7 @@ esac
 
 ls
 pwd
-case ${MACHINE} in
+case ${machine} in
 	am57xx-evm|dragonboard-410c|hikey)
 		local_rootfs_img=$(find . -type f -name '*rpb-console-image-lkft-*.img')
 		mv ${local_rootfs_img} rpb-console-image-lkft.rootfs.img
