@@ -136,10 +136,6 @@ case ${TARGET} in
 	img_file="$(basename "${new_file_name}" .ext4).img"
 	create_a_sparse_img "${img_file}" "${new_file_name}"
 	;;
-	intel-corei7-64)
-	;;
-	intel-core2-32)
-	;;
 	*)
 	usage
 	exit 1
