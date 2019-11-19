@@ -36,7 +36,7 @@ case ${DEVICE_TYPE} in
 		./kir/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
 		./kir/resize_rootfs.sh -s -f "${local_rootfs_ext4}" -o "${local_modules}"
 		;;
-	hi6220-hikey-r2)
+	hi6220-hikey|hi6220-hikey-r2)
 		local_ptable=$(find . -type f -name '*ptable*-8g.img')
 		echo "PRINTOUT ptable: ${local_ptable}"
 		file ${local_ptable}
