@@ -7,9 +7,9 @@ set -e
 DEVICE_TYPE=${1}
 cd /lava-lxc
 
-find . -type f -name 'modules-*'
+find . -type f -name 'modules*'
 echo "PRINTOUT"
-local_modules=$(find . -type f -name 'modules-*')
+local_modules=$(find . -type f -name 'modules*')
 echo "PRINTOUT MODULES: ${local_modules}"
 file ${local_modules}
 local_kernel=$(find . -type f -name '*Image*.bin')
