@@ -129,8 +129,12 @@ case ${TARGET} in
 		kernel_image="zImage"
 	fi
 
-	ln -sf "${LXC_DTB_FILE}" "${dtb_file}"
-	ln -sf "${LXC_KERNEL_FILE}" "${kernel_image}"
+	if [[ "${LXC_DTB_FILE}" != "${dtb_file}" ]]; then
+		ln -sf "${LXC_DTB_FILE}" "${dtb_file}"
+	fi
+	if [[ "${LXC_KERNEL_FILE}" != "${kernel_image}" ]]; then
+		ln -sf "${LXC_KERNEL_FILE}" "${kernel_image}"
+	fi
 	cd -
 
 	virt_copy_in ${new_file_name} ${mount_point_dir}
