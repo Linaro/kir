@@ -20,7 +20,7 @@ file ${local_rootfs_ext4}
 
 case ${DEVICE_TYPE} in
 	x15)
-		local_dtb=$(find . -type f -name '*Image*.dtb')
+		local_dtb=$(find . -type f -name '*.dtb')
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
 		machine=am57xx-evm
@@ -28,7 +28,7 @@ case ${DEVICE_TYPE} in
 		;;
 	dragonboard-410c)
 
-		local_dtb=$(find . -type f -name '*Image*.dtb')
+		local_dtb=$(find . -type f -name '*.dtb')
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
 		machine=dragonboard-410c
@@ -44,7 +44,7 @@ case ${DEVICE_TYPE} in
 		local_boot=boot.img
 		echo "PRINTOUT boot: ${local_boot}"
 		file ${local_boot}
-		local_dtb=$(find . -type f -name '*Image*.dtb')
+		local_dtb=$(find . -type f -name '*.dtb')
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
 		machine=hikey
