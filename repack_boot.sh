@@ -81,8 +81,9 @@ fi
 case ${TARGET} in
 	dragonboard-410c)
 	if [[ ${kernel_file_type} =~ *"gzip compressed data"* ]]; then
-		echo "Need to pass in a zImage file"
-		exit 1
+		echo "Need to pass in a zImage file."
+		echo "gzip -c Image > zImage"
+		gzip -c Image > zImage
 	fi
 
 	cat "${LXC_KERNEL_FILE}" "${LXC_DTB_FILE}" > zImage+dtb
