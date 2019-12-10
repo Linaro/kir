@@ -5,7 +5,7 @@ set -e
 #set -xe
 
 DEVICE_TYPE=${1}
-cd /lava-lxc
+cd /lava-lxc || true
 
 echo "PRINTOUT"
 local_modules=$(find . -type f -name 'modules*')
