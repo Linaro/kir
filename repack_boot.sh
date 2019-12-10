@@ -84,6 +84,7 @@ case ${TARGET} in
 		echo "Need to pass in a zImage file."
 		echo "gzip -c Image > zImage"
 		gzip -c Image > zImage
+		LXC_KERNEL_FILE=zImage
 	fi
 
 	cat "${LXC_KERNEL_FILE}" "${LXC_DTB_FILE}" > zImage+dtb
