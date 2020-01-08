@@ -91,7 +91,7 @@ case ${TARGET} in
 	echo "This is not an initrd">initrd.img
 
 	new_file_name="$(find . -type f -name "${LXC_KERNEL_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g')"
-	mkbootimg --kernel zImage+dtb --ramdisk initrd.img --pagesize 2048 --base 0x80000000 --cmdline "root=/dev/mmcblk0p10 rw rootwait console=ttyMSM0,115200n8" --output boot.img
+	mkbootimg --kernel zImage+dtb --ramdisk initrd.img --pagesize 2048 --base 0x80000000 --cmdline "root=/dev/mmcblk0p14 rw rootwait console=ttyMSM0,115200n8" --output boot.img
 	;;
 	am57xx-evm|hikey)
 	modules_file_type=$(file "${LXC_MODULES_FILE}")
