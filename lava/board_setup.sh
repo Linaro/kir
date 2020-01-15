@@ -11,7 +11,7 @@ echo "PRINTOUT"
 local_modules=$(find . -type f -name 'modules*')
 echo "PRINTOUT MODULES: ${local_modules}"
 file ${local_modules}
-local_kernel=$(find . -type f -name '*Image*')
+local_kernel=$(find . -type f -name '*Image*' | grep -vi dtb)
 echo "PRINTOUT KERNEL: ${local_kernel}"
 file ${local_kernel}
 local_rootfs_ext4=$(find . -type f -name '*rpb-console-image-lkft-*.ext4*')
