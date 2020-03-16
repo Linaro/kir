@@ -6,13 +6,6 @@ set -e
 
 . $(dirname $0)/libhelper
 
-if [[ -d /lava-lxc ]]; then
-	cd /lava-lxc
-else
-	mkdir -p $(pwd)/lava-lxc
-	cd $(pwd)/lava-lxc
-fi
-
 clear_modules=0
 zip_needed=0
 EXTRA_SIZE=${EXTRA_SIZE:-64000}

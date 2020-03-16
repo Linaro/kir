@@ -11,13 +11,6 @@ zip_needed=0
 
 . $(dirname $0)/libhelper
 
-if [[ -d /lava-lxc ]]; then
-	cd /lava-lxc
-else
-	mkdir -p $(pwd)/lava-lxc
-	cd $(pwd)/lava-lxc
-fi
-
 usage() {
 	echo -e "$0's help text"
 	echo -e "   -c, cleanup pre-installed modules in /lib/modules/"
