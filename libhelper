@@ -53,8 +53,8 @@ get_mountpoint_dir() {
 
 get_new_file_name() {
 	local local_rootfs_file=${1}
-	local local_filename_prefix=${2}
-	echo "$(find . -type f -name "${local_rootfs_file}"| awk -F'.' '{print $2}'|sed 's|/||g')${local_filename_prefix}"
+	local local_filename_suffix=${2}
+	echo "$(find . -type f -name "${local_rootfs_file}"| awk -F'.' '{print $2}'|sed 's|/||g')${local_filename_suffix}"
 }
 
 get_new_size() {
