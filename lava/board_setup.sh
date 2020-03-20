@@ -5,7 +5,7 @@ set -e
 #set -xe
 
 DEVICE_TYPE=${1}
-cd /lava-lxc || true
+kir=$(dirname $0)/..
 
 echo "PRINTOUT"
 local_modules=$(find . -type f -name 'modules*')
@@ -24,7 +24,7 @@ case ${DEVICE_TYPE} in
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
 		machine=am57xx-evm
-		./kir/repack_boot.sh -t "${machine}" -f "${local_rootfs_ext4}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
+		${kir}/repack_boot.sh -t "${machine}" -f "${local_rootfs_ext4}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
 		;;
 	dragonboard-410c)
 
@@ -32,8 +32,8 @@ case ${DEVICE_TYPE} in
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
 		machine=dragonboard-410c
-		./kir/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
-		./kir/resize_rootfs.sh -s -f "${local_rootfs_ext4}" -o "${local_modules}"
+		${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
+		${kir}/resize_rootfs.sh -s -f "${local_rootfs_ext4}" -o "${local_modules}"
 		;;
 	hi6220-hikey|hi6220-hikey-r2)
 		local_ptable=$(find . -type f -name '*ptable*-8g.img')
@@ -48,7 +48,7 @@ case ${DEVICE_TYPE} in
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
 		machine=hikey
-		./kir/repack_boot.sh -t "${machine}" -f "${local_rootfs_ext4}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
+		${kir}/repack_boot.sh -t "${machine}" -f "${local_rootfs_ext4}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
 		;;
 	*)
 		usage

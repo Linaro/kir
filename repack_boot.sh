@@ -6,13 +6,6 @@ set -e
 
 . $(dirname $0)/libhelper
 
-if [[ -d /lava-lxc ]]; then
-	cd /lava-lxc
-else
-	mkdir -p $(pwd)/lava-lxc
-	cd $(pwd)/lava-lxc
-fi
-
 clear_modules=0
 zip_needed=0
 EXTRA_SIZE=${EXTRA_SIZE:-64000}
@@ -80,70 +73,70 @@ fi
 
 case ${TARGET} in
 	dragonboard-410c)
-	if [[ ! ${kernel_file_type} = *"gzip compressed data"* ]]; then
-		echo "Need to pass in a zImage file."
-		echo "gzip -c Image > zImage"
-		gzip -c Image > zImage
-		LXC_KERNEL_FILE=zImage
-	fi
+		if [[ ! ${kernel_file_type} = *"gzip compressed data"* ]]; then
+			echo "Need to pass in a zImage file."
+			echo "gzip -c Image > zImage"
+			gzip -c Image > zImage
+			LXC_KERNEL_FILE=zImage
+		fi
 
-	cat "${LXC_KERNEL_FILE}" "${LXC_DTB_FILE}" > zImage+dtb
-	echo "This is not an initrd">initrd.img
+		cat "${LXC_KERNEL_FILE}" "${LXC_DTB_FILE}" > zImage+dtb
+		echo "This is not an initrd">initrd.img
 
-	new_file_name="$(find . -type f -name "${LXC_KERNEL_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g')"
-	mkbootimg --kernel zImage+dtb --ramdisk initrd.img --pagesize 2048 --base 0x80000000 --cmdline "root=/dev/mmcblk0p14 rw rootwait console=ttyMSM0,115200n8" --output boot.img
-	;;
+		new_file_name="$(find . -type f -name "${LXC_KERNEL_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g')"
+		mkbootimg --kernel zImage+dtb --ramdisk initrd.img --pagesize 2048 --base 0x80000000 --cmdline "root=/dev/mmcblk0p14 rw rootwait console=ttyMSM0,115200n8" --output boot.img
+		;;
 	am57xx-evm|hikey)
-	modules_file_type=$(file "${LXC_MODULES_FILE}")
-	rootfs_file_type=$(file "${LXC_ROOTFS_FILE}")
-	modules_size=$(find_extracted_size "${LXC_MODULES_FILE}" "${modules_file_type}")
-	rootfs_size=$(find_extracted_size "${LXC_ROOTFS_FILE}" "${rootfs_file_type}")
-	mount_point_dir=$(get_mountpoint_dir)
-	new_file_name=$(get_new_file_name "${LXC_ROOTFS_FILE}" ".new.rootfs")
-	new_size=$(get_new_size "${overlay_size}" "${rootfs_size}" "${EXTRA_SIZE}")
-	if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
-		get_and_create_a_ddfile "${new_file_name}" "${new_size}"
-	else
-		new_file_name=$(basename "${LXC_ROOTFS_FILE}" .gz)
-		get_and_create_new_rootfs "${new_file_name}" "${new_file_name}" "${new_size}"
-	fi
+		modules_file_type=$(file "${LXC_MODULES_FILE}")
+		rootfs_file_type=$(file "${LXC_ROOTFS_FILE}")
+		modules_size=$(find_extracted_size "${LXC_MODULES_FILE}" "${modules_file_type}")
+		rootfs_size=$(find_extracted_size "${LXC_ROOTFS_FILE}" "${rootfs_file_type}")
+		mount_point_dir=$(get_mountpoint_dir)
+		new_file_name=$(get_new_file_name "${LXC_ROOTFS_FILE}" ".new.rootfs")
+		new_size=$(get_new_size "${overlay_size}" "${rootfs_size}" "${EXTRA_SIZE}")
+		if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
+			get_and_create_a_ddfile "${new_file_name}" "${new_size}"
+		else
+			new_file_name=$(basename "${LXC_ROOTFS_FILE}" .gz)
+			get_and_create_new_rootfs "${new_file_name}" "${new_file_name}" "${new_size}"
+		fi
 
-	if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
-		unpack_tar_file "${LXC_ROOTFS_FILE}" "${mount_point_dir}"
-	fi
+		if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
+			unpack_tar_file "${LXC_ROOTFS_FILE}" "${mount_point_dir}"
+		fi
 
-	if [[ $clear_modules -eq 1 ]]; then
-		rm -rf "${mount_point_dir}"/lib/modules/*
-	fi
-	unpack_tar_file "${LXC_MODULES_FILE}" "${mount_point_dir}"
+		if [[ $clear_modules -eq 1 ]]; then
+			rm -rf "${mount_point_dir}"/lib/modules/*
+		fi
+		unpack_tar_file "${LXC_MODULES_FILE}" "${mount_point_dir}"
 
-	mkdir -p "${mount_point_dir}"/boot
-	cp "${LXC_DTB_FILE}" "${mount_point_dir}"/boot/
-	cp "${LXC_KERNEL_FILE}" "${mount_point_dir}"/boot/
-	cd "${mount_point_dir}"/boot
+		mkdir -p "${mount_point_dir}"/boot
+		cp "${LXC_DTB_FILE}" "${mount_point_dir}"/boot/
+		cp "${LXC_KERNEL_FILE}" "${mount_point_dir}"/boot/
+		cd "${mount_point_dir}"/boot
 
-	if [[ ${TARGET} = *"hikey"* ]]; then
-		dtb_file="hi6220-hikey.dtb"
-		kernel_image="Image"
-	else
-		dtb_file="am57xx-beagle-x15.dtb"
-		kernel_image="zImage"
-	fi
+		if [[ ${TARGET} = *"hikey"* ]]; then
+			dtb_file="hi6220-hikey.dtb"
+			kernel_image="Image"
+		else
+			dtb_file="am57xx-beagle-x15.dtb"
+			kernel_image="zImage"
+		fi
 
-	if [[ "${LXC_DTB_FILE}" != "${dtb_file}" ]]; then
-		ln -sf "${LXC_DTB_FILE}" "${dtb_file}"
-	fi
-	if [[ "${LXC_KERNEL_FILE}" != "${kernel_image}" ]]; then
-		ln -sf "${LXC_KERNEL_FILE}" "${kernel_image}"
-	fi
-	cd -
+		if [[ "${LXC_DTB_FILE}" != "${dtb_file}" ]]; then
+			ln -sf "${LXC_DTB_FILE}" "${dtb_file}"
+		fi
+		if [[ "${LXC_KERNEL_FILE}" != "${kernel_image}" ]]; then
+			ln -sf "${LXC_KERNEL_FILE}" "${kernel_image}"
+		fi
+		cd -
 
-	virt_copy_in ${new_file_name} ${mount_point_dir}
-	img_file="$(basename "${new_file_name}" .ext4).img"
-	create_a_sparse_img "${img_file}" "${new_file_name}"
-	;;
+		virt_copy_in ${new_file_name} ${mount_point_dir}
+		img_file="$(basename "${new_file_name}" .ext4).img"
+		create_a_sparse_img "${img_file}" "${new_file_name}"
+		;;
 	*)
-	usage
-	exit 1
-	;;
+		usage
+		exit 1
+		;;
 esac
