@@ -3,23 +3,29 @@ find_extracted_size() {
 	local local_file=${1}
 	local local_file_type=${2}
 	local local_size=
-	if [[ ${local_file_type} = *"POSIX tar archive"* ]]; then
-		local_size=$(ls -l "${local_file}" | awk '{print $5}')
-		local_size=$(( "${local_size}" / 1024 ))
-	elif [[ ${local_file_type} = *"gzip compressed data"* ]]; then
-		local_size=$(gzip -l "${local_file}" | tail -1 | awk '{print $2}')
-		local_size=$(( "${local_size}" / 1024 ))
-	elif [[ ${local_file_type} = *"XZ compressed data"* ]]; then
-		local_size=$(xz -l "${local_file}" | tail -1 | awk '{print $5}'|sed 's/,//g' | awk -F'.' '{print $1}')
-		local_size=$(( "${local_size}"+1 ))
-		local_size=$(( "${local_size}" * 1024 ))
-	elif [[ ${local_file_type} = *"ext4 filesystem data"* ]]; then
-		local_size=$(ls -l "${local_file}" | awk '{print $5}')
-		local_size=$(( "${local_size}" / 1024 ))
-	else
-		echo "ABORT: Format not supported: ${local_size}"
-		exit 1
-	fi
+
+	case ${local_file_type} in
+		*"POSIX tar archive"*)
+			local_size=$(ls -l "${local_file}" | awk '{print $5}')
+			local_size=$(( "${local_size}" / 1024 ))
+			;;
+		*"gzip compressed data"*)
+			local_size=$(gzip -l "${local_file}" | tail -1 | awk '{print $2}')
+			local_size=$(( "${local_size}" / 1024 ))
+			;;
+		*"XZ compressed data"*)
+			local_size=$(xz -l "${local_file}" | tail -1 | awk '{print $5}'|sed 's/,//g' | awk -F'.' '{print $1}')
+			local_size=$(( "${local_size}"+1 ))
+			local_size=$(( "${local_size}" * 1024 ))
+			;;
+		*"ext4 filesystem data"*)
+			local_size=$(ls -l "${local_file}" | awk '{print $5}')
+			local_size=$(( "${local_size}" / 1024 ))
+			;;
+		*)
+			echo "ABORT: Format not supported: ${local_size}"
+			exit 1
+	esac
 	echo ${local_size}
 }
 
