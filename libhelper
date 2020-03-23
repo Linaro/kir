@@ -84,7 +84,9 @@ get_and_create_new_rootfs() {
 	local local_rootfs_file=${1}
 	local local_new_file_name=${2}
 	local local_new_size=${3}
-	gunzip -k "${local_rootfs_file}"
+	if [ -z "${local_rootfs_file##*.gz}" ]; then
+		gunzip -k "${local_rootfs_file}"
+	fi
 	echo resize2s "${local_new_file_name}" "${local_new_size}"M
 	resize2fs "${local_new_file_name}" "${local_new_size}"M
 }
