@@ -67,7 +67,7 @@ if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 	get_and_create_a_ddfile "${new_file_name}" "${new_size}"
 else
 	new_file_name=$(basename "${LXC_ROOTFS_FILE}" .gz)
-	get_and_create_new_rootfs "${new_file_name}" "${new_file_name}" "${new_size}"
+	get_and_create_new_rootfs "${LXC_ROOTFS_FILE}" "${new_file_name}" "${new_size}"
 fi
 
 if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
