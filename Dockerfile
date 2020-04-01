@@ -11,7 +11,7 @@ RUN apt-get update \
       git \
       img2simg \
       libguestfs-tools \
-      linux-image-amd64 \
+      linux-image-$(dpkg --print-architecture) \
       mkbootimg \
       xz-utils \
       --no-install-recommends
