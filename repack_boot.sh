@@ -72,7 +72,7 @@ if [[ ${dtb_file_type} =~ *"Device Tree Blob"* ]]; then
 fi
 
 case ${TARGET} in
-	dragonboard-410c)
+	dragonboard-410c|dragonboard-845c)
 		if [[ ! ${kernel_file_type} = *"gzip compressed data"* ]]; then
 			echo "Need to pass in a zImage file."
 			echo "gzip -c Image > zImage"
@@ -83,8 +83,19 @@ case ${TARGET} in
 		cat "${LXC_KERNEL_FILE}" "${LXC_DTB_FILE}" > zImage+dtb
 		echo "This is not an initrd">initrd.img
 
+		case ${TARGET} in
+			dragonboard-410c)
+				cmdline="root=/dev/mmcblk0p14 rw rootwait console=ttyMSM0,115200n8"
+				pagasize=2048
+				;;
+			dragonboard-845c)
+				cmdline="root=PARTLABEL=rootfs console=tty0 console=ttyMSM0,115200n8 clk_ignore_unused pd_ignore_unused"
+				pagasize=4096
+				;;
+		esac
 		new_file_name="$(find . -type f -name "${LXC_KERNEL_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g')"
-		mkbootimg --kernel zImage+dtb --ramdisk initrd.img --pagesize 2048 --base 0x80000000 --cmdline "root=/dev/mmcblk0p14 rw rootwait console=ttyMSM0,115200n8" --output boot.img
+		mkbootimg --kernel zImage+dtb --ramdisk initrd.img --pagesize "${pagasize}" --base 0x80000000 --cmdline "${cmdline}" --output boot.img
+		file boot.img
 		;;
 	am57xx-evm|hikey)
 		modules_file_type=$(file "${LXC_MODULES_FILE}")

@@ -26,12 +26,12 @@ case ${DEVICE_TYPE} in
 		machine=am57xx-evm
 		${kir}/repack_boot.sh -t "${machine}" -f "${local_rootfs_ext4}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
 		;;
-	dragonboard-410c)
+	dragonboard-410c|dragonboard-845c)
 
 		local_dtb=$(find . -type f -name '*.dtb')
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
-		machine=dragonboard-410c
+		machine=${DEVICE_TYPE}
 		${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
 		${kir}/resize_rootfs.sh -s -f "${local_rootfs_ext4}" -o "${local_modules}"
 		;;
@@ -59,7 +59,7 @@ esac
 ls
 pwd
 case ${machine} in
-	am57xx-evm|dragonboard-410c|hikey)
+	am57xx-evm|dragonboard-410c|dragonboard-845c|hikey)
 		local_rootfs_img=$(find . -type f -name '*rpb-console-image-lkft-*.img')
 		mv ${local_rootfs_img} rpb-console-image-lkft.rootfs.img
 		ls -l
