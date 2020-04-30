@@ -8,6 +8,7 @@ set -e
 
 clear_modules=0
 zip_needed=0
+nfsrootfs=0
 EXTRA_SIZE=${EXTRA_SIZE:-64000}
 
 usage() {
@@ -27,7 +28,7 @@ usage() {
 	echo -e "   -h, prints out this help"
 }
 
-while getopts "cd:f:hk:m:t:z" arg; do
+while getopts "cd:f:hk:m:nt:z" arg; do
 	case $arg in
 	c)
 		clear_modules=1
@@ -43,6 +44,9 @@ while getopts "cd:f:hk:m:t:z" arg; do
 		;;
 	m)
 		LXC_MODULES_URL="$OPTARG"
+		;;
+	n)
+		nfsrootfs=1
 		;;
 	t)
 		TARGET="$OPTARG"
@@ -83,16 +87,28 @@ case ${TARGET} in
 		cat "${LXC_KERNEL_FILE}" "${LXC_DTB_FILE}" > zImage+dtb
 		echo "This is not an initrd">initrd.img
 
+		# NFS_SERVER_IP and NFS_ROOTFS exported from the environment.
+		echo ${NFS_SERVER_IP} and ${NFS_ROOTFS}
+		nfscmdline="root=/dev/nfs rw nfsroot=$NFS_SERVER_IP:$NFS_ROOTFS,nfsvers=3 ip=dhcp"
+		console_cmdline="console=tty0 console=ttyMSM0,115200n8"
+		cmdline_extra=""
+
 		case ${TARGET} in
 			dragonboard-410c)
-				cmdline="root=/dev/mmcblk0p14 rw rootwait console=ttyMSM0,115200n8"
+				cmdline="root=/dev/mmcblk0p14 rw rootwait ${console_cmdline}"
 				pagasize=2048
 				;;
 			dragonboard-845c)
-				cmdline="root=PARTLABEL=rootfs console=tty0 console=ttyMSM0,115200n8 clk_ignore_unused pd_ignore_unused"
+				cmdline_extra="clk_ignore_unused pd_ignore_unused"
+				cmdline="root=PARTLABEL=rootfs ${console_cmdline} ${cmdline_extra}"
 				pagasize=4096
 				;;
 		esac
+
+		if [[ ${nfsrootfs} == 1 ]]; then
+			cmdline="${nfscmdline} ${console_cmdline} ${cmdline_extra}"
+		fi
+
 		new_file_name="$(find . -type f -name "${LXC_KERNEL_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g')"
 		mkbootimg --kernel zImage+dtb --ramdisk initrd.img --pagesize "${pagasize}" --base 0x80000000 --cmdline "${cmdline}" --output boot.img
 		file boot.img

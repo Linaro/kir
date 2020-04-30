@@ -15,6 +15,9 @@ local_kernel=$(find . -type f -name '*Image*' | grep -vi dtb)
 echo "PRINTOUT KERNEL: ${local_kernel}"
 file ${local_kernel}
 local_rootfs=$(find . -type f -name '*rpb-console-image-lkft-*.ext4*')
+if [[ -z ${local_rootfs} ]]; then
+	local_rootfs=$(find . -type f -name '*rpb-console-image-lkft-*.tar*')
+fi
 echo "PRINTOUT ROOTFS: ${local_rootfs}"
 file ${local_rootfs}
 
@@ -32,8 +35,7 @@ case ${DEVICE_TYPE} in
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
 		machine=${DEVICE_TYPE}
-		${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
-		${kir}/resize_rootfs.sh -s -f "${local_rootfs}" -o "${local_modules}"
+		${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}" "-n"
 		;;
 	hi6220-hikey|hi6220-hikey-r2)
 		local_ptable=$(find . -type f -name '*ptable*-8g.img')
@@ -58,12 +60,10 @@ esac
 
 ls
 pwd
-case ${machine} in
-	am57xx-evm|dragonboard-410c|dragonboard-845c|hikey)
-		local_rootfs_img=$(find . -type f -name '*rpb-console-image-lkft-*.img')
-		mv ${local_rootfs_img} rpb-console-image-lkft.rootfs.img
-		ls -l
-		pwd
-		file rpb-console-image-lkft.rootfs.img
-		;;
-esac
+local_rootfs_img=$(find . -type f -name '*rpb-console-image-lkft-*.img')
+if [[ -n ${local_rootfs_img} ]]; then
+	mv ${local_rootfs_img} rpb-console-image-lkft.rootfs.img
+	ls -l
+	pwd
+	file rpb-console-image-lkft.rootfs.img
+fi
