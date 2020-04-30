@@ -14,9 +14,9 @@ file ${local_modules}
 local_kernel=$(find . -type f -name '*Image*' | grep -vi dtb)
 echo "PRINTOUT KERNEL: ${local_kernel}"
 file ${local_kernel}
-local_rootfs=$(find . -type f -name '*rpb-console-image-lkft-*.ext4*')
+local_rootfs=$(find . -type f -name '*rpb-console-image-*.ext4*')
 if [[ -z ${local_rootfs} ]]; then
-	local_rootfs=$(find . -type f -name '*rpb-console-image-lkft-*.tar*')
+	local_rootfs=$(find . -type f -name '*rpb-console-image-*.tar*')
 fi
 echo "PRINTOUT ROOTFS: ${local_rootfs}"
 file ${local_rootfs}
