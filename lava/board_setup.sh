@@ -35,7 +35,7 @@ case ${DEVICE_TYPE} in
 		file ${local_dtb}
 		machine=${DEVICE_TYPE}
 		${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
-		${kir}/resize_rootfs.sh -s -f "${local_rootfs_ext4}" -o "${local_modules}"
+		${kir}/resize_rootfs.sh -s -f "${local_rootfs}" -o "${local_modules}"
 		;;
 	dragonboard-845c)
 
