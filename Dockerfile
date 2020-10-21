@@ -22,5 +22,6 @@ RUN apt-get update \
       python3-requests \
       xz-utils \
       --no-install-recommends
-RUN pip3 install simplediskimage
+RUN pip3 install setuptools wheel
+RUN pip3 install simplediskimage==0.4.2
 COPY . /kir
