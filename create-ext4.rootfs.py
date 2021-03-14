@@ -27,6 +27,7 @@ def get_file(path):
 
 def main(args):
     rootfs_tar = get_file(args.get('rootfs', None))
+    modules_tar = get_file(args.get('modules', None))
     output_file = args.get('output_file', None)
 
     uncompressed_file = output_file + '.tmp'
@@ -41,6 +42,9 @@ def main(args):
     with tempfile.TemporaryDirectory() as rootfs_dir:
         with tarfile.open(rootfs_tar, 'r:xz') as tf:
             tf.extractall(rootfs_dir)
+            if modules_tar is not None:
+                with tarfile.open(modules_tar, 'r:xz') as tf:
+                    tf.extractall(rootfs_dir)
 
         part.set_initial_data_root(rootfs_dir)
 
@@ -58,6 +62,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--rootfs", required=True,
                         help="url or path to rootfs file")
+    parser.add_argument("--modules",
+                        help="url or path to modules file")
     parser.add_argument("--output_file", required=True,
                         help="name the newly created .ext4.gz file")
     args = vars(parser.parse_args())
