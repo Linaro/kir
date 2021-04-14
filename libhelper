@@ -89,6 +89,13 @@ get_and_create_new_rootfs() {
 	fi
 	echo resize2fs "${local_new_file_name}" "${local_new_size}"M
 	resize2fs "${local_new_file_name}" "${local_new_size}"M
+	retcode=$?
+	if [[ ${retcode} -ne 0 ]]; then
+		echo e2fsck -f "${local_new_file_name}"
+		e2fsck -f "${local_new_file_name}"
+		echo resize2fs "${local_new_file_name}" "${local_new_size}"M
+		resize2fs "${local_new_file_name}" "${local_new_size}"M
+	fi
 }
 
 loopback_mount() {
