@@ -1,9 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: MIT
 
-set -e
-#set -xe
-
 . $(dirname $0)/libhelper
 
 clear_modules=0
