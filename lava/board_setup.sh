@@ -5,6 +5,7 @@ set -e
 #set -xe
 
 DEVICE_TYPE=${1}
+ROOTFS_STRING=${2:-"console-image-"}
 kir=$(dirname $0)/..
 
 echo "PRINTOUT"
@@ -14,9 +15,9 @@ file ${local_modules}
 local_kernel=$(find . -type f -name '*Image*' | grep -vi dtb)
 echo "PRINTOUT KERNEL: ${local_kernel}"
 file ${local_kernel}
-local_rootfs=$(find . -type f -name '*console-image-*.ext4*')||true
+local_rootfs=$(find . -type f -name "*${ROOTFS_STRING}*.ext4*")||true
 if [[ -z ${local_rootfs} ]]; then
-	local_rootfs=$(find . -type f -name '*console-image-*.tar*')
+	local_rootfs=$(find . -type f -name "*${ROOTFS_STRING}*.tar*")
 fi
 echo "PRINTOUT ROOTFS: ${local_rootfs}"
 file ${local_rootfs}
@@ -68,7 +69,7 @@ esac
 
 ls
 pwd
-local_rootfs_img=$(find . -type f -name '*console-image-*.img')
+local_rootfs_img=$(find . -type f -name "*${ROOTFS_STRING}*.img")
 if [[ -n ${local_rootfs_img} ]]; then
 	mv ${local_rootfs_img} rpb-console-image-lkft.rootfs.img
 	ls -l
