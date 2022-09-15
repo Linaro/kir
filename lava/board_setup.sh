@@ -5,7 +5,7 @@ set -e
 #set -xe
 
 DEVICE_TYPE=${1}
-ROOTFS_STRING=${2:-"console-image-"}
+ROOTFS_STRING=${2:-"image-"}
 kir=$(dirname $0)/..
 
 echo "PRINTOUT"
