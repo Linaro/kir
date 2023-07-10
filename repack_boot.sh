@@ -86,7 +86,7 @@ case ${TARGET} in
 
 		# NFS_SERVER_IP and NFS_ROOTFS exported from the environment.
 		echo ${NFS_SERVER_IP} and ${NFS_ROOTFS}
-		nfscmdline="root=/dev/nfs rw nfsroot=$NFS_SERVER_IP:$NFS_ROOTFS,nfsvers=3 ip=dhcp"
+		nfscmdline="root=/dev/nfs nfsroot=$NFS_SERVER_IP:$NFS_ROOTFS,nfsvers=3 ip=dhcp"
 		console_cmdline="console=tty0 console=ttyMSM0,115200n8"
 		cmdline_extra=""
 
@@ -97,7 +97,7 @@ case ${TARGET} in
 				;;
 			dragonboard-845c)
 				cmdline_extra="clk_ignore_unused pd_ignore_unused"
-				cmdline="root=PARTLABEL=rootfs ${console_cmdline} ${cmdline_extra}"
+				cmdline="root=PARTLABEL=rootfs rw ${console_cmdline} ${cmdline_extra}"
 				pagasize=4096
 				;;
 		esac
