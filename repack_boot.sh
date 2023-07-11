@@ -73,6 +73,11 @@ if [[ ${dtb_file_type} =~ *"Device Tree Blob"* ]]; then
 fi
 
 case ${TARGET} in
+	e850-96)
+		cmdline="rw androidboot.hardware=exynos850 androidboot.selinux=permissive buildvariant=eng"
+		mkbootimg --kernel "${LXC_KERNEL_FILE}" --cmdline "${cmdline}" --os_version 10 --os_patch_level 2019-12-01 --tags_offset 0 --header_version 2 --dtb "${LXC_DTB_FILE}" --dtb_offset 0 --output boot.img
+		file boot.img
+		;;
 	dragonboard-410c|dragonboard-845c)
 		if [[ ! ${kernel_file_type} = *"gzip compressed data"* ]]; then
 			echo "Need to pass in a zImage file."
