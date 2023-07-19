@@ -31,16 +31,16 @@ while getopts "cd:f:hk:m:nt:z" arg; do
 		clear_modules=1
 		;;
 	d)
-		LXC_DTB_URL="$OPTARG"
+		DTB_URL="$OPTARG"
 		;;
 	f)
-		LXC_ROOTFS_URL="$OPTARG"
+		ROOTFS_URL="$OPTARG"
 		;;
 	k)
-		LXC_KERNEL_URL="$OPTARG"
+		KERNEL_URL="$OPTARG"
 		;;
 	m)
-		LXC_MODULES_URL="$OPTARG"
+		MODULES_URL="$OPTARG"
 		;;
 	n)
 		nfsrootfs=1
@@ -59,13 +59,13 @@ while getopts "cd:f:hk:m:nt:z" arg; do
 done
 
 
-LXC_ROOTFS_FILE=$(curl_me "${LXC_ROOTFS_URL}")
-LXC_MODULES_FILE=$(curl_me "${LXC_MODULES_URL}")
-LXC_KERNEL_FILE=$(curl_me "${LXC_KERNEL_URL}")
-LXC_DTB_FILE=$(curl_me "${LXC_DTB_URL}")
+ROOTFS_FILE=$(curl_me "${ROOTFS_URL}")
+MODULES_FILE=$(curl_me "${MODULES_URL}")
+KERNEL_FILE=$(curl_me "${KERNEL_URL}")
+DTB_FILE=$(curl_me "${DTB_URL}")
 
-kernel_file_type=$(file "${LXC_KERNEL_FILE}")
-dtb_file_type=$(file "${LXC_DTB_FILE}")
+kernel_file_type=$(file "${KERNEL_FILE}")
+dtb_file_type=$(file "${DTB_FILE}")
 
 if [[ ${dtb_file_type} =~ *"Device Tree Blob"* ]]; then
 	echo "Need to pass in a dtb file"
@@ -75,7 +75,7 @@ fi
 case ${TARGET} in
 	e850-96)
 		cmdline="rw androidboot.hardware=exynos850 androidboot.selinux=permissive buildvariant=eng"
-		mkbootimg --kernel "${LXC_KERNEL_FILE}" --cmdline "${cmdline}" --os_version 10 --os_patch_level 2019-12-01 --tags_offset 0 --header_version 2 --dtb "${LXC_DTB_FILE}" --dtb_offset 0 --output boot.img
+		mkbootimg --kernel "${KERNEL_FILE}" --cmdline "${cmdline}" --os_version 10 --os_patch_level 2019-12-01 --tags_offset 0 --header_version 2 --dtb "${DTB_FILE}" --dtb_offset 0 --output boot.img
 		file boot.img
 		;;
 	dragonboard-410c|dragonboard-845c)
@@ -83,10 +83,10 @@ case ${TARGET} in
 			echo "Need to pass in a zImage file."
 			echo "gzip -c Image > zImage"
 			gzip -c Image > zImage
-			LXC_KERNEL_FILE=zImage
+			KERNEL_FILE=zImage
 		fi
 
-		cat "${LXC_KERNEL_FILE}" "${LXC_DTB_FILE}" > zImage+dtb
+		cat "${KERNEL_FILE}" "${DTB_FILE}" > zImage+dtb
 		echo "This is not an initrd">initrd.img
 
 		# NFS_SERVER_IP and NFS_ROOTFS exported from the environment.
@@ -111,37 +111,37 @@ case ${TARGET} in
 			cmdline="${nfscmdline} ${console_cmdline} ${cmdline_extra}"
 		fi
 
-		new_file_name="$(find . -type f -name "${LXC_KERNEL_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g')"
+		new_file_name="$(find . -type f -name "${KERNEL_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g')"
 		mkbootimg --kernel zImage+dtb --ramdisk initrd.img --pagesize "${pagasize}" --base 0x80000000 --cmdline "${cmdline}" --output boot.img
 		file boot.img
 		;;
 	am57xx-evm|hikey)
-		modules_file_type=$(file "${LXC_MODULES_FILE}")
-		rootfs_file_type=$(file "${LXC_ROOTFS_FILE}")
-		modules_size=$(find_extracted_size "${LXC_MODULES_FILE}" "${modules_file_type}")
-		rootfs_size=$(find_extracted_size "${LXC_ROOTFS_FILE}" "${rootfs_file_type}")
+		modules_file_type=$(file "${MODULES_FILE}")
+		rootfs_file_type=$(file "${ROOTFS_FILE}")
+		modules_size=$(find_extracted_size "${MODULES_FILE}" "${modules_file_type}")
+		rootfs_size=$(find_extracted_size "${ROOTFS_FILE}" "${rootfs_file_type}")
 		mount_point_dir=$(get_mountpoint_dir)
-		new_file_name=$(get_new_file_name "${LXC_ROOTFS_FILE}" ".new.rootfs")
+		new_file_name=$(get_new_file_name "${ROOTFS_FILE}" ".new.rootfs")
 		new_size=$(get_new_size "${overlay_size}" "${rootfs_size}" "${EXTRA_SIZE}")
-		if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
+		if [[ "${ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 			get_and_create_a_ddfile "${new_file_name}" "${new_size}"
 		else
-			new_file_name=$(basename "${LXC_ROOTFS_FILE}" .gz)
-			get_and_create_new_rootfs "${LXC_ROOTFS_FILE}" "${new_file_name}" "${new_size}"
+			new_file_name=$(basename "${ROOTFS_FILE}" .gz)
+			get_and_create_new_rootfs "${ROOTFS_FILE}" "${new_file_name}" "${new_size}"
 		fi
 
-		if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
-			unpack_tar_file "${LXC_ROOTFS_FILE}" "${mount_point_dir}"
+		if [[ "${ROOTFS_FILE}" =~ ^.*.tar* ]]; then
+			unpack_tar_file "${ROOTFS_FILE}" "${mount_point_dir}"
 		fi
 
 		if [[ $clear_modules -eq 1 ]]; then
 			rm -rf "${mount_point_dir}"/lib/modules/*
 		fi
-		unpack_tar_file "${LXC_MODULES_FILE}" "${mount_point_dir}"
+		unpack_tar_file "${MODULES_FILE}" "${mount_point_dir}"
 
 		mkdir -p "${mount_point_dir}"/boot
-		cp "${LXC_DTB_FILE}" "${mount_point_dir}"/boot/
-		cp "${LXC_KERNEL_FILE}" "${mount_point_dir}"/boot/
+		cp "${DTB_FILE}" "${mount_point_dir}"/boot/
+		cp "${KERNEL_FILE}" "${mount_point_dir}"/boot/
 		cd "${mount_point_dir}"/boot
 
 		if [[ ${TARGET} = *"hikey"* ]]; then
@@ -152,11 +152,11 @@ case ${TARGET} in
 			kernel_image="zImage"
 		fi
 
-		if [[ "${LXC_DTB_FILE}" != "${dtb_file}" ]]; then
-			ln -sf "${LXC_DTB_FILE}" "${dtb_file}"
+		if [[ "${DTB_FILE}" != "${dtb_file}" ]]; then
+			ln -sf "${DTB_FILE}" "${dtb_file}"
 		fi
-		if [[ "${LXC_KERNEL_FILE}" != "${kernel_image}" ]]; then
-			ln -sf "${LXC_KERNEL_FILE}" "${kernel_image}"
+		if [[ "${KERNEL_FILE}" != "${kernel_image}" ]]; then
+			ln -sf "${KERNEL_FILE}" "${kernel_image}"
 		fi
 		cd -
 
