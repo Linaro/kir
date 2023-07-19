@@ -27,10 +27,10 @@ while getopts "cd:f:hm:o:sz" arg; do
 		clear_modules=1
 		;;
 	f)
-		LXC_ROOTFS_URL="$OPTARG"
+		ROOTFS_URL="$OPTARG"
 		;;
 	o)
-		LXC_OVERLAY_URL="$OPTARG"
+		OVERLAY_URL="$OPTARG"
 		;;
 	s)
 		sparse_needed=1
@@ -46,37 +46,37 @@ while getopts "cd:f:hm:o:sz" arg; do
 done
 
 
-LXC_OVERLAY_FILE=$(curl_me "${LXC_OVERLAY_URL}")
-LXC_ROOTFS_FILE=$(curl_me "${LXC_ROOTFS_URL}")
+OVERLAY_FILE=$(curl_me "${OVERLAY_URL}")
+ROOTFS_FILE=$(curl_me "${ROOTFS_URL}")
 
-overlay_file_type=$(file "${LXC_OVERLAY_FILE}")
-rootfs_file_type=$(file "${LXC_ROOTFS_FILE}")
-overlay_size=$(find_extracted_size "${LXC_OVERLAY_FILE}" "${overlay_file_type}")
-rootfs_size=$(find_extracted_size "${LXC_ROOTFS_FILE}" "${rootfs_file_type}")
+overlay_file_type=$(file "${OVERLAY_FILE}")
+rootfs_file_type=$(file "${ROOTFS_FILE}")
+overlay_size=$(find_extracted_size "${OVERLAY_FILE}" "${overlay_file_type}")
+rootfs_size=$(find_extracted_size "${ROOTFS_FILE}" "${rootfs_file_type}")
 
 mount_point_dir=$(get_mountpoint_dir)
 
 echo ${mount_point_dir}
 
-new_file_name=$(get_new_file_name "${LXC_ROOTFS_FILE}" ".new.rootfs")
+new_file_name=$(get_new_file_name "${ROOTFS_FILE}" ".new.rootfs")
 new_size=$(get_new_size "${overlay_size}" "${rootfs_size}" "${EXTRA_SIZE}")
-if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
+if [[ "${ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 	get_and_create_a_ddfile "${new_file_name}" "${new_size}"
 else
-	new_file_name=$(basename "${LXC_ROOTFS_FILE}" .gz)
-	get_and_create_new_rootfs "${LXC_ROOTFS_FILE}" "${new_file_name}" "${new_size}"
+	new_file_name=$(basename "${ROOTFS_FILE}" .gz)
+	get_and_create_new_rootfs "${ROOTFS_FILE}" "${new_file_name}" "${new_size}"
 fi
 
-if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
-	unpack_tar_file "${LXC_ROOTFS_FILE}" "${mount_point_dir}"
+if [[ "${ROOTFS_FILE}" =~ ^.*.tar* ]]; then
+	unpack_tar_file "${ROOTFS_FILE}" "${mount_point_dir}"
 fi
 
 if [[ $clear_modules -eq 1 ]]; then
 	rm -rf "${mount_point_dir}"/lib/modules/*
 fi
-unpack_tar_file "${LXC_OVERLAY_FILE}" "${mount_point_dir}"
+unpack_tar_file "${OVERLAY_FILE}" "${mount_point_dir}"
 
-if [[ "${LXC_ROOTFS_FILE}" =~ ^.*.tar* ]]; then
+if [[ "${ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 	cd "${mount_point_dir}"
 	tar -cJf ../"${new_file_name}".tar.xz .
 	cd ..
