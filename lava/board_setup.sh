@@ -71,8 +71,8 @@ ls
 pwd
 local_rootfs_img=$(find . -type f -name "*${ROOTFS_STRING}*.img")
 if [[ -n ${local_rootfs_img} ]]; then
-	mv ${local_rootfs_img} rpb-console-image-lkft.rootfs.img
+	mv ${local_rootfs_img} rootfs.img
 	ls -l
 	pwd
-	file rpb-console-image-lkft.rootfs.img
+	file rootfs.img
 fi
