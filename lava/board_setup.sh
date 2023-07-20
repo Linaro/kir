@@ -70,7 +70,7 @@ esac
 ls
 pwd
 local_rootfs_img=$(find . -type f -name "*${ROOTFS_STRING}*.img")
-if [[ -n ${local_rootfs_img} ]]; then
+if [ -n "${local_rootfs_img}" ] && [ "${local_rootfs_img}" != "./rootfs.img" ]; then
 	mv ${local_rootfs_img} rootfs.img
 	ls -l
 	pwd
