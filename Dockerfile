@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 RUN apt-get update \
     && apt-get install -qy auto-apt-proxy \
     && apt-get install -qy \
@@ -11,7 +11,6 @@ RUN apt-get update \
       e2fsprogs \
       file \
       git \
-      img2simg \
       libguestfs-tools \
       linux-image-$(dpkg --print-architecture) \
       mkbootimg \
@@ -22,6 +21,5 @@ RUN apt-get update \
       python3-requests \
       xz-utils \
       --no-install-recommends
-RUN pip3 install setuptools wheel
-RUN pip3 install simplediskimage==0.4.2
+RUN pip3 install --break-system-packages setuptools wheel simplediskimage==0.4.2
 COPY . /kir
