@@ -22,4 +22,16 @@ RUN apt-get update \
       xz-utils \
       --no-install-recommends
 RUN pip3 install --break-system-packages setuptools wheel simplediskimage==0.4.2
+RUN echo "\n\
+Types: deb \n\
+# http://snapshot.debian.org/archive/debian/20231009T000000Z \n\
+URIs: http://deb.debian.org/debian \n\
+Suites: bookworm-backports \n\
+Components: main \n\
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg " >> /etc/apt/sources.list.d/debian.sources
+
+RUN apt-get update \
+    && apt-get install -qy \
+      android-sdk-libsparse-utils/bookworm-backports \
+      fastboot/bookworm-backports
 COPY . /kir
