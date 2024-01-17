@@ -9,6 +9,8 @@ ROOTFS_STRING=${2:-"image-"}
 kir=$(dirname $0)/..
 
 echo "PRINTOUT"
+local_initrd=$(find . -type f -name '*initramfs*')
+echo "PRINTOUT initramfs: ${local_initrd}"
 local_modules=$(find . -type f -name '*modules*')
 echo "PRINTOUT MODULES: ${local_modules}"
 file ${local_modules}
@@ -35,7 +37,14 @@ case ${DEVICE_TYPE} in
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
 		machine=${DEVICE_TYPE}
-		${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
+		case ${DEVICE_TYPE} in
+			dragonboard-845c)
+				${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}" -i "${local_initrd}"
+				;;
+			*)
+				${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
+				;;
+		esac
 		${kir}/resize_rootfs.sh -s -f "${local_rootfs}" -o "${local_modules}"
 		;;
 	nfs-dragonboard-845c)
