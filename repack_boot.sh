@@ -16,6 +16,8 @@ usage() {
 	echo -e "      Can be to a file on disk: file:///path/to/file.dtb"
 	echo -e "   -f ROOTFS_URL, specify a url to a rootfs, either a (ext4|tar).(gz|xz)."
 	echo -e "      Can be to a file on disk: file:///path/to/file.gz"
+	echo -e "   -i INITRD_URL, specify a url to an initrd.cpio.gz file."
+	echo -e "      Can be to a file on disk: file:///path/to/file.gz"
 	echo -e "   -k KERNEL_URL, specify a url to a kernel zImage or Image.gz file."
 	echo -e "      Can be to a file on disk: file:///path/to/file.gz"
 	echo -e "   -m MODULE_URL, specify a url to a kernel module tgz file."
@@ -25,7 +27,7 @@ usage() {
 	echo -e "   -h, prints out this help"
 }
 
-while getopts "cd:f:hk:m:nt:z" arg; do
+while getopts "cd:f:hi:k:m:nt:z" arg; do
 	case $arg in
 	c)
 		clear_modules=1
@@ -35,6 +37,9 @@ while getopts "cd:f:hk:m:nt:z" arg; do
 		;;
 	f)
 		ROOTFS_URL="$OPTARG"
+		;;
+	i)
+		INITRD_URL="$OPTARG"
 		;;
 	k)
 		KERNEL_URL="$OPTARG"
@@ -60,6 +65,7 @@ done
 
 
 ROOTFS_FILE=$(curl_me "${ROOTFS_URL}")
+INITRD_FILE=$(curl_me "${INITRD_URL}")
 MODULES_FILE=$(curl_me "${MODULES_URL}")
 KERNEL_FILE=$(curl_me "${KERNEL_URL}")
 DTB_FILE=$(curl_me "${DTB_URL}")
@@ -92,6 +98,8 @@ case ${TARGET} in
 
 		cat "${KERNEL_FILE}" "${DTB_FILE}" > zImage+dtb
 		echo "This is not an initrd">initrd.img
+		initrd_filename="initrd.img"
+
 
 		# NFS_SERVER_IP and NFS_ROOTFS exported from the environment.
 		echo ${NFS_SERVER_IP} and ${NFS_ROOTFS}
@@ -105,8 +113,15 @@ case ${TARGET} in
 				pagasize=2048
 				;;
 			dragonboard-845c)
+				mkdir -p modules_dir/usr
+				unpack_tar_file "${MODULES_FILE}" modules_dir/usr
+				cd modules_dir
+				find . | cpio -o -H newc -R +0:+0 | gzip -9 > ../modules.cpio.gz
+				cd -
+				cat "${INITRD_FILE}" modules.cpio.gz > final-initrd.cpio.gz
+				initrd_filename="final-initrd.cpio.gz"
 				cmdline_extra="clk_ignore_unused pd_ignore_unused"
-				cmdline="root=PARTLABEL=rootfs rw rootwait ${console_cmdline} ${cmdline_extra}"
+				cmdline="root=/dev/sda1 init=/sbin/init rw ${console_cmdline} ${cmdline_extra} -- "
 				pagasize=4096
 				;;
 			qrb5165-rb5)
@@ -120,7 +135,7 @@ case ${TARGET} in
 		fi
 
 		new_file_name="$(find . -type f -name "${KERNEL_FILE}"| awk -F'.' '{print $2}'|sed 's|/||g')"
-		mkbootimg --kernel zImage+dtb --ramdisk initrd.img --pagesize "${pagasize}" --base 0x80000000 --cmdline "${cmdline}" --output boot.img
+		mkbootimg --kernel zImage+dtb --ramdisk "${initrd_filename}" --pagesize "${pagasize}" --base 0x80000000 --cmdline "${cmdline}" --output boot.img
 		file boot.img
 		;;
 	am57xx-evm|hikey)
