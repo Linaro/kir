@@ -40,12 +40,13 @@ case ${DEVICE_TYPE} in
 		case ${DEVICE_TYPE} in
 			dragonboard-410c|dragonboard-845c|qrb5165-rb5)
 				${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}" -i "${local_initrd}"
+				${kir}/resize_rootfs.sh -s -f "${local_rootfs}"
 				;;
 			*)
 				${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
+				${kir}/resize_rootfs.sh -s -f "${local_rootfs}" -o "${local_modules}"
 				;;
 		esac
-		${kir}/resize_rootfs.sh -s -f "${local_rootfs}" -o "${local_modules}"
 		;;
 	nfs-dragonboard-845c)
 
