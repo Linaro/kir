@@ -97,35 +97,33 @@ case ${TARGET} in
 		fi
 
 		cat "${KERNEL_FILE}" "${DTB_FILE}" > zImage+dtb
-		echo "This is not an initrd">initrd.img
-		initrd_filename="initrd.img"
+		mkdir -p modules_dir/usr
+		unpack_tar_file "${MODULES_FILE}" modules_dir/usr
+		cd modules_dir
+		find . | cpio -o -H newc -R +0:+0 | gzip -9 > ../modules.cpio.gz
+		cd -
+		initrd_filename="initrd.cpio.gz"
+		cat "${INITRD_FILE}" modules.cpio.gz > "${initrd_filename}"
 
 
 		# NFS_SERVER_IP and NFS_ROOTFS exported from the environment.
 		echo ${NFS_SERVER_IP} and ${NFS_ROOTFS}
 		nfscmdline="root=/dev/nfs nfsroot=$NFS_SERVER_IP:$NFS_ROOTFS,nfsvers=3 ip=dhcp"
 		console_cmdline="console=tty0 console=ttyMSM0,115200n8"
-		cmdline_extra=""
+		cmdline_extra="copy_modules"
 
 		case ${TARGET} in
 			dragonboard-410c)
-				cmdline="root=/dev/mmcblk0p14 rw rootwait ${console_cmdline}"
+				cmdline="root=/dev/mmcblk0p14 rw rootwait ${console_cmdline} ${cmdline_extra}"
 				pagasize=2048
 				;;
 			dragonboard-845c)
-				mkdir -p modules_dir/usr
-				unpack_tar_file "${MODULES_FILE}" modules_dir/usr
-				cd modules_dir
-				find . | cpio -o -H newc -R +0:+0 | gzip -9 > ../modules.cpio.gz
-				cd -
-				cat "${INITRD_FILE}" modules.cpio.gz > final-initrd.cpio.gz
-				initrd_filename="final-initrd.cpio.gz"
-				cmdline_extra="clk_ignore_unused pd_ignore_unused"
+				cmdline_extra="${cmdline_extra} clk_ignore_unused pd_ignore_unused"
 				cmdline="root=/dev/sda1 init=/sbin/init rw ${console_cmdline} ${cmdline_extra} -- "
 				pagasize=4096
 				;;
 			qrb5165-rb5)
-				cmdline="root=PARTLABEL=rootfs rw rootwait earlycon debug ${console_cmdline}"
+				cmdline="root=PARTLABEL=rootfs rw rootwait earlycon debug ${console_cmdline} ${cmdline_extra}"
 				pagasize=4096
 				;;
 		esac
