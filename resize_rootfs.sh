@@ -21,13 +21,16 @@ usage() {
 	echo -e "   -h, prints out this help"
 }
 
-while getopts "cd:f:hm:o:sz" arg; do
+while getopts "cd:f:hm:o:p:sz" arg; do
 	case $arg in
 	c)
 		clear_modules=1
 		;;
 	f)
 		ROOTFS_URL="$OPTARG"
+		;;
+	p)
+		MODULES_PATH="$OPTARG"
 		;;
 	o)
 		OVERLAY_URL="$OPTARG"
@@ -74,7 +77,8 @@ fi
 if [[ $clear_modules -eq 1 ]]; then
 	rm -rf "${mount_point_dir}"/lib/modules/*
 fi
-unpack_tar_file "${OVERLAY_FILE}" "${mount_point_dir}"
+mkdir -p "${mount_point_dir}${MODULES_PATH}"
+unpack_tar_file "${OVERLAY_FILE}" "${mount_point_dir}${MODULES_PATH}"
 
 if [[ "${ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 	cd "${mount_point_dir}"
