@@ -6,6 +6,7 @@ set -e
 
 DEVICE_TYPE=${1}
 ROOTFS_STRING=${2:-"image-"}
+MODULES_PATH=${3:-"/"}
 kir=$(dirname $0)/..
 
 echo "PRINTOUT"
@@ -45,7 +46,7 @@ case ${DEVICE_TYPE} in
 				${kir}/repack_boot.sh -t "${machine}" -d "${local_dtb}" -k "${local_kernel}"
 				;;
 		esac
-		${kir}/resize_rootfs.sh -s -f "${local_rootfs}" -o "${local_modules}"
+		${kir}/resize_rootfs.sh -s -f "${local_rootfs}" -o "${local_modules}" -p "${MODULES_PATH}"
 		;;
 	nfs-dragonboard-845c)
 
