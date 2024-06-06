@@ -27,7 +27,7 @@ usage() {
 	echo -e "   -h, prints out this help"
 }
 
-while getopts "cd:f:hi:k:m:nt:z" arg; do
+while getopts "cd:f:hi:k:m:np:t:z" arg; do
 	case $arg in
 	c)
 		clear_modules=1
@@ -49,6 +49,9 @@ while getopts "cd:f:hi:k:m:nt:z" arg; do
 		;;
 	n)
 		nfsrootfs=1
+		;;
+	p)
+		MODULES_PATH="$OPTARG"
 		;;
 	t)
 		TARGET="$OPTARG"
@@ -160,7 +163,8 @@ case ${TARGET} in
 		if [[ $clear_modules -eq 1 ]]; then
 			rm -rf "${mount_point_dir}"/lib/modules/*
 		fi
-		unpack_tar_file "${MODULES_FILE}" "${mount_point_dir}"
+		mkdir -p "${mount_point_dir}${MODULES_PATH}"
+		unpack_tar_file "${MODULES_FILE}" "${mount_point_dir}${MODULES_PATH}"
 
 		mkdir -p "${mount_point_dir}"/boot
 		cp "${DTB_FILE}" "${mount_point_dir}"/boot/
