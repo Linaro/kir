@@ -31,7 +31,7 @@ case ${DEVICE_TYPE} in
 		echo "PRINTOUT DTB: ${local_dtb}"
 		file ${local_dtb}
 		machine=am57xx-evm
-		${kir}/repack_boot.sh -t "${machine}" -f "${local_rootfs}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}"
+		${kir}/repack_boot.sh -t "${machine}" -f "${local_rootfs}" -d "${local_dtb}" -k "${local_kernel}" -m "${local_modules}" -p "${MODULES_PATH}"
 		;;
 	dragonboard-410c|dragonboard-845c|e850-96|qrb5165-rb5)
 		local_dtb=$(find . -type f -name '*.dtb')
