@@ -87,7 +87,7 @@ case ${TARGET} in
 			gunzip ${KERNEL_FILE}
 			KERNEL_FILE=$(echo "${KERNEL_FILE}" | cut -d'.' -f1)
 		fi
-		cmdline="rw androidboot.hardware=exynos850 androidboot.selinux=permissive buildvariant=eng"
+		cmdline="rw androidboot.hardware=exynos850 androidboot.selinux=permissive buildvariant=eng earlycon"
 		mkbootimg --kernel "${KERNEL_FILE}" --cmdline "${cmdline}" --os_version 10 --os_patch_level 2019-12-01 --tags_offset 0 --header_version 2 --dtb "${DTB_FILE}" --dtb_offset 0 --output boot.img
 		file boot.img
 		;;
@@ -107,7 +107,7 @@ case ${TARGET} in
 		# NFS_SERVER_IP and NFS_ROOTFS exported from the environment.
 		echo ${NFS_SERVER_IP} and ${NFS_ROOTFS}
 		nfscmdline="root=/dev/nfs nfsroot=$NFS_SERVER_IP:$NFS_ROOTFS,nfsvers=3 ip=dhcp"
-		console_cmdline="console=tty0 console=ttyMSM0,115200n8"
+		console_cmdline="console=tty0 console=ttyMSM0,115200n8 earlycon"
 		cmdline_extra=""
 
 		case ${TARGET} in
@@ -128,7 +128,7 @@ case ${TARGET} in
 				pagasize=4096
 				;;
 			qrb5165-rb5)
-				cmdline="root=PARTLABEL=rootfs rw rootwait earlycon debug ${console_cmdline}"
+				cmdline="root=PARTLABEL=rootfs rw rootwait debug ${console_cmdline}"
 				pagasize=4096
 				;;
 		esac
