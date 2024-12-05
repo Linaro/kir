@@ -27,7 +27,7 @@ docker-arm64:
   extends: .docker
   stage: build
   tags:
-     - arm64-dind
+     - saas-linux-medium-arm64
   variables:
     TAG_APPEND: -arm64
   only:
@@ -54,7 +54,7 @@ docker-master-arm64:
   extends: .docker-master
   stage: build
   tags:
-     - arm64-dind
+     - saas-linux-medium-arm64
   variables:
     TAG_APPEND: -arm64
 
