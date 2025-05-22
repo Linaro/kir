@@ -121,5 +121,5 @@ create_a_sparse_img() {
 create_a_xz_file() {
 	local local_new_file_name=${1}
 	echo "execute this command: xz -c ${local_new_file_name} > ${local_new_file_name}.xz"
-	xz -c "${local_new_file_name}" > "$(basename "${local_new_file_name}").xz"
+	xz -0 -c "${local_new_file_name}" > "$(basename "${local_new_file_name}").xz"
 }
