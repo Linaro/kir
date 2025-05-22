@@ -82,7 +82,7 @@ unpack_tar_file "${OVERLAY_FILE}" "${mount_point_dir}${MODULES_PATH}"
 
 if [[ "${ROOTFS_FILE}" =~ ^.*.tar* ]]; then
 	cd "${mount_point_dir}"
-	tar -cJf ../"${new_file_name}".tar.xz .
+	XZ_OPT=-0 tar -cJf ../"${new_file_name}".tar.xz .
 	cd ..
 fi
 
