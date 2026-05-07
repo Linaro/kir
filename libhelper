@@ -107,7 +107,7 @@ loopback_mount() {
 virt_copy_in() {
 	local local_new_file_name=${1}
 	local local_mount_point_dir=${2}
-	virt-copy-in -a ${local_new_file_name} ${local_mount_point_dir}/* /
+	mke2fs -t ext4 -F -d "${local_mount_point_dir}" "${local_new_file_name}"
 	rm -rf "${local_mount_point_dir}"
 }
 
