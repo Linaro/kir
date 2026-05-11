@@ -11,7 +11,6 @@ RUN apt-get update \
       e2fsprogs \
       file \
       git \
-      libguestfs-tools \
       linux-image-$(dpkg --print-architecture) \
       mkbootimg \
       mtools \
