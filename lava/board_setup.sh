@@ -18,6 +18,15 @@ file ${local_modules}
 local_kernel=$(find . -type f -name '*Image*' | grep -vi dtb)
 echo "PRINTOUT KERNEL: ${local_kernel}"
 file ${local_kernel}
+local_cpio=$(find . -type f -name "*${ROOTFS_STRING}*.cpio")
+if [[ -n ${local_cpio} ]]; then
+	echo "PRINTOUT converting cpio rootfs to tar: ${local_cpio}"
+	rm -rf rootfs.d rootfs.tar
+	mkdir rootfs.d
+	( cd rootfs.d && cpio -idm < "../${local_cpio}" )
+	tar -cf rootfs.tar -C rootfs.d .
+	rm -rf rootfs.d
+fi
 local_rootfs=$(find . -type f -name "*${ROOTFS_STRING}*.ext4*")||true
 if [[ -z ${local_rootfs} ]]; then
 	local_rootfs=$(find . -type f -name "*${ROOTFS_STRING}*.tar*")
