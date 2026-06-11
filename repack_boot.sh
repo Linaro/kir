@@ -82,7 +82,7 @@ if [[ ${dtb_file_type} =~ *"Device Tree Blob"* ]]; then
 fi
 
 case ${TARGET} in
-	e850-96)
+	exynos850-e850-96)
 		if [[ ${kernel_file_type} = *"gzip compressed data"* ]]; then
 			gunzip ${KERNEL_FILE}
 			KERNEL_FILE=$(echo "${KERNEL_FILE}" | cut -d'.' -f1)
