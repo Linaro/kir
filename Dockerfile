@@ -12,6 +12,7 @@ RUN apt-get update \
       file \
       git \
       linux-image-$(dpkg --print-architecture) \
+      lz4 \
       mkbootimg \
       mtools \
       python3-distutils \
