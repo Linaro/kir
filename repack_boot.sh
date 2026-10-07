@@ -216,6 +216,12 @@ case ${TARGET} in
 		vendor_bootconfig=vendor-bootconfig.img
 		vendor_boot_out=${vendor_boot_out:-vendor_boot.img}
 		boot_out=${boot_out:-boot.img}
+		if [[ ${kernel_file_type} = *"gzip compressed data"* ]]; then
+			gunzip ${KERNEL_FILE}
+			KERNEL_FILE=$(echo "${KERNEL_FILE}" | cut -d'.' -f1)
+		fi
+		lz4 -l -9 -f "$KERNEL_FILE" "${KERNEL_FILE}.lz4"
+		KERNEL_FILE="${KERNEL_FILE}.lz4"
 		mkbootimg \
 		    --header_version 4 \
 		    --dtb "$DTB_FILE" \
