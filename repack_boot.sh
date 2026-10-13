@@ -29,8 +29,8 @@ usage() {
 
 gunzip_kernel() {
 	if [[ ${kernel_file_type} = *"gzip compressed data"* ]]; then
-		gunzip ${KERNEL_FILE}
-		KERNEL_FILE=$(echo "${KERNEL_FILE}" | cut -d'.' -f1)
+		gunzip "${KERNEL_FILE}"
+		KERNEL_FILE="${KERNEL_FILE%.gz}"
 	fi
 }
 
