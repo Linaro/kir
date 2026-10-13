@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 RUN apt-get update \
     && apt-get install -qy auto-apt-proxy \
     && apt-get install -qy \
@@ -15,7 +15,6 @@ RUN apt-get update \
       lz4 \
       mkbootimg \
       mtools \
-      python3-distutils \
       python3-parted \
       python3-pip \
       python3-requests \
