@@ -27,6 +27,13 @@ usage() {
 	echo -e "   -h, prints out this help"
 }
 
+gunzip_kernel() {
+	if [[ ${kernel_file_type} = *"gzip compressed data"* ]]; then
+		gunzip ${KERNEL_FILE}
+		KERNEL_FILE=$(echo "${KERNEL_FILE}" | cut -d'.' -f1)
+	fi
+}
+
 while getopts "cd:f:hi:k:m:np:t:z" arg; do
 	case $arg in
 	c)
@@ -83,10 +90,7 @@ fi
 
 case ${TARGET} in
 	exynos850-e850-96)
-		if [[ ${kernel_file_type} = *"gzip compressed data"* ]]; then
-			gunzip ${KERNEL_FILE}
-			KERNEL_FILE=$(echo "${KERNEL_FILE}" | cut -d'.' -f1)
-		fi
+		gunzip_kernel
 		cmdline="rw androidboot.hardware=exynos850 androidboot.selinux=permissive buildvariant=eng earlycon"
 		mkbootimg --kernel "${KERNEL_FILE}" --cmdline "${cmdline}" --os_version 10 --os_patch_level 2019-12-01 --tags_offset 0 --header_version 2 --dtb "${DTB_FILE}" --dtb_offset 0 --output boot.img
 		file boot.img
@@ -216,10 +220,7 @@ case ${TARGET} in
 		vendor_bootconfig=vendor-bootconfig.img
 		vendor_boot_out=${vendor_boot_out:-vendor_boot.img}
 		boot_out=${boot_out:-boot.img}
-		if [[ ${kernel_file_type} = *"gzip compressed data"* ]]; then
-			gunzip ${KERNEL_FILE}
-			KERNEL_FILE=$(echo "${KERNEL_FILE}" | cut -d'.' -f1)
-		fi
+		gunzip_kernel
 		lz4 -l -9 -f "$KERNEL_FILE" "${KERNEL_FILE}.lz4"
 		KERNEL_FILE="${KERNEL_FILE}.lz4"
 		mkbootimg \
