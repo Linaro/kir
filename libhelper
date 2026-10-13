@@ -77,7 +77,7 @@ get_and_create_a_ddfile() {
 	local local_new_file_name=${1}
 	local local_new_size=${2}
 	dd if=/dev/zero of="${local_new_file_name}" bs=1M count=60 seek="${local_new_size}"
-	mkfs.ext4 "${local_new_file_name}"
+	mkfs.ext4 -O ^orphan_file,^metadata_csum_seed "${local_new_file_name}"
 }
 
 get_and_create_new_rootfs() {
@@ -107,7 +107,7 @@ loopback_mount() {
 virt_copy_in() {
 	local local_new_file_name=${1}
 	local local_mount_point_dir=${2}
-	mke2fs -t ext4 -F -d "${local_mount_point_dir}" "${local_new_file_name}"
+	mke2fs -t ext4 -O ^orphan_file,^metadata_csum_seed -F -d "${local_mount_point_dir}" "${local_new_file_name}"
 	rm -rf "${local_mount_point_dir}"
 }
 
