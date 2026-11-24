@@ -35,6 +35,17 @@ unpack_tar_file() {
 	tar -xvf ${local_file} -C ${local_mount_point}
 }
 
+pack_modules_initrd() {
+	local local_modules_file=${1}
+	local local_initrd_file=${2}
+	local local_output=${3}
+
+	mkdir -p modules_dir/usr
+	unpack_tar_file "${local_modules_file}" modules_dir/usr
+	( cd modules_dir && find . | cpio -o -H newc -R +0:+0 | gzip -9 ) > modules.cpio.gz
+	cat "${local_initrd_file}" modules.cpio.gz > "${local_output}"
+}
+
 curl_me() {
 	local local_file=${1}
 	if [[ -z ${local_file} ]]; then

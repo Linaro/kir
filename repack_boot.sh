@@ -111,12 +111,7 @@ case ${TARGET} in
 				initrd_filename="initrd.img"
 				;;
 			dragonboard-845c|qrb5165-rb5)
-				mkdir -p modules_dir/usr
-				unpack_tar_file "${MODULES_FILE}" modules_dir/usr
-				cd modules_dir
-				find . | cpio -o -H newc -R +0:+0 | gzip -9 > ../modules.cpio.gz
-				cd -
-				cat "${INITRD_FILE}" modules.cpio.gz > final-initrd.cpio.gz
+				pack_modules_initrd "${MODULES_FILE}" "${INITRD_FILE}" final-initrd.cpio.gz
 				initrd_filename="final-initrd.cpio.gz"
 				;;
 		esac
@@ -205,12 +200,7 @@ case ${TARGET} in
 		;;
 	gs101-oriole)
 		echo "androidboot.boot_devices=14700000.ufs" | tee vendor-bootconfig.img
-		mkdir -p modules_dir/usr
-		unpack_tar_file "${MODULES_FILE}" modules_dir/usr
-		cd modules_dir
-		find . | cpio -o -H newc -R +0:+0 | gzip -9 > ../modules.cpio.gz
-		cd -
-		cat "${INITRD_FILE}" modules.cpio.gz > initramfs.platform.cpio.gz
+		pack_modules_initrd "${MODULES_FILE}" "${INITRD_FILE}" initramfs.platform.cpio.gz
 		initrd_filename="initramfs.platform.cpio.gz"
 		console_cmdline="console=tty0 console=ttyMSM0,115200n8 earlycon"
 		cmdline_extra="clk_ignore_unused pd_ignore_unused"
