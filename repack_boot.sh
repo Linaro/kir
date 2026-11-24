@@ -205,15 +205,13 @@ case ${TARGET} in
 		;;
 	gs101-oriole)
 		echo "androidboot.boot_devices=14700000.ufs" | tee vendor-bootconfig.img
-		mkdir -p modules_dir/usr dlkm-root/usr/lib/modules/
+		mkdir -p modules_dir/usr
 		unpack_tar_file "${MODULES_FILE}" modules_dir/usr
 		cd modules_dir
 		find . | cpio -o -H newc -R +0:+0 | gzip -9 > ../modules.cpio.gz
 		cd -
 		cat "${INITRD_FILE}" modules.cpio.gz > initramfs.platform.cpio.gz
 		initrd_filename="initramfs.platform.cpio.gz"
-		cp -a modules_dir/usr/lib/modules/* dlkm-root/usr/lib/modules/
-		( cd dlkm-root && find . | cpio -o -H newc | gzip -9 ) > initramfs.dlkm.cpio.gz
 		console_cmdline="console=tty0 console=ttyMSM0,115200n8 earlycon"
 		cmdline_extra="clk_ignore_unused pd_ignore_unused"
 		cmdline="root=PARTLABEL=userdata rw rootwait debug ${console_cmdline} ${cmdline_extra}"
@@ -232,9 +230,6 @@ case ${TARGET} in
 		    --ramdisk_type platform \
 		    --ramdisk_name PLAT \
 		    --vendor_ramdisk_fragment "${initrd_filename}" \
-		    --ramdisk_type dlkm \
-		    --ramdisk_name DLKM \
-		    --vendor_ramdisk_fragment initramfs.dlkm.cpio.gz \
 		    \
 		    --vendor_boot "$vendor_boot_out" \
 		    --output "$boot_out"
